@@ -1,0 +1,1 @@
+local DEBUG = Config.DEBUG
