@@ -46,6 +46,15 @@ function upgradePocess(src, upgradeReqData)
     end
 end
 
+function removeMoney(src , type , amount , desc)
+    local plyert = QBCore.Functions.GetPlayer(src)
+    --local plyCid = ply.PlayerData.citizenid
+    if plyert.Functions.RemoveMoney(type, amount, "vehicle-upgrade-bail-"..desc) then
+        return true
+    end
+    return false
+end
+
 function saveCarWeight(upgradeReqData, weightUpgrades)
     -- save car Weight 
     local weightUpgradesChanges = {}
