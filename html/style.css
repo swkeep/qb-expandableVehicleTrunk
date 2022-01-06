@@ -1,0 +1,207 @@
+@font-face {
+  font-family: 'Plate';
+  src: url("./css/font/PlatNomorWyVnn.ttf") format("ttf"),
+    url("./css/font/PlatNomoreZ2dm.otf") format("opentype");
+}
+
+:root {
+  --size-divisor: 3;
+}
+
+#app {
+  display: none;
+  position: absolute;
+  width: 50%;
+  min-width: 50%;
+  top: 50%;
+  left: 50%;
+  background: rgba(35, 40, 51, 0.33);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+
+.tablet-enter-active,
+.tablet-leave-active {
+  animation: toIN 1s;
+
+}
+
+.tablet-enter,
+.tablet-leave-to {
+  animation: toOUT 1s;
+}
+
+
+@keyframes toIN {
+  100% {
+    transform: translate(0%, 0%);
+  }
+
+  0% {
+    transform: translate(0%, 150%);
+  }
+}
+
+@keyframes toOUT {
+  0% {
+    transform: translate(0%, 0%);
+  }
+
+  100% {
+    transform: translate(0%, 150%);
+  }
+}
+
+.tabs-wrapper {
+  height: calc(370px / var(--size-divisor)) !important;
+  width: calc(535px / var(--size-divisor)) !important;
+  margin: .5rem !important;
+}
+
+.tablet {
+  margin: 0;
+  padding: 0;
+  height: 34.5rem;
+  width: calc(545px / var(--size-divisor));
+  display: flex;
+}
+
+.tablet img {
+  position: absolute;
+  width: calc(545px / var(--size-divisor));
+  z-index: 999;
+  pointer-events: none;
+}
+
+.cardCus {
+  max-width: 25rem;
+  margin: 5px;
+}
+
+.car-details {
+  display: flex;
+}
+
+.col {
+  display: flex;
+  margin: .5rem;
+}
+
+.box {
+  background-color: #fff;
+  border: max(2px, 0.18em) solid #ced9e3;
+  border-radius: 1em;
+  color: #4a4a4a;
+  display: block;
+  padding: .75rem;
+  width: 21rem;
+}
+
+.vehicle-details {}
+
+.vehicle-details div {
+  display: flex;
+}
+
+.card:not(.horizontal) {
+  width: 21em !important;
+}
+
+.card .card-body {
+  height: 60%;
+  filter: opacity(.75);
+}
+
+.BKimage {
+  transform: scaleY(-1);
+  top: 8rem;
+  left: 6rem;
+  width: 144px !important;
+}
+
+.invertF {
+  filter: invert(1)
+}
+
+.invert_disable {
+  filter: invert(0)
+}
+
+.settings {}
+
+.backdrop-layer {
+  width: 97% !important;
+  height: 98% !important;
+  border-radius: 2rem !important;
+}
+
+.alert {
+  position: fixed;
+  top: 32px;
+  right: 50px;
+  width: 25% !important;
+  z-index: 999;
+  border-radius: 10px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .3s ease;
+}
+
+.fade-enter,
+.fade-leave-to
+
+/* .component-fade-leave-active below version 2.1.8 */
+  {
+  opacity: 0;
+}
+
+.plate {
+  font-family: Plate, 'Plate';
+  min-height: 9rem;
+
+}
+
+.plate img {
+  position: absolute;
+  z-index: -1;
+}
+
+.plate span {
+  font-size: 50px;
+  position: absolute;
+  z-index: 0;
+  top: 2.7rem;
+  left: 2.9rem;
+}
+
+@media (min-width: 576px) {
+  :root {
+    --size-divisor: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --size-divisor: 1.5;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --size-divisor: .99;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --size-divisor: .75;
+  }
+}
+
+@media (min-width: 1330px) {
+  :root {
+    --size-divisor: .70;
+  }
+}

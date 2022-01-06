@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI</title>
+    <!-- CSS -->
+
+    <link href="./css/flatify.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+        type="text/css" />
+    <!-- JavaScript -->
+    <script src="./js/vue.js"></script>
+    <script type="text/javascript" src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/popper.min.js" crossorigin="anonymous"></script>
+    <script src="./js/flatify.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="app">
+    <transition name="tablet">
+        <div v-show="isBodyShow" class="tablet">
+
+            <!-- Alert -->
+            <transition name="fade" mode="out-in">
+                <div v-if="alert.show" class="alert" :class="alert.color">
+                    {{alert.msg}}
+                    <button class="close-button floating" :click="toggleAlert"></button>
+                </div>
+            </transition>
+            <!-- End Alert -->
+
+            <img src="./background.png" alt="" srcset="">
+            <div class="tabs-wrapper" :class="theme">
+                <div class="tabs-header" role="tablist">
+                    <button class="close-button" :class="theme" @click="closeMenu"></button>
+                    <template v-for="tab in tabs" :key="tab.id">
+                        <button role="tab" :class="changeActiveButton(tab.id)" :aria-controls="tab.panel">
+                            {{tab.name}}
+                        </button>
+                    </template>
+                </div>
+                <div class="tabs-content" :class="theme">
+                    <template v-for="tab in tabs" :key="tab.id">
+                        <div :id="tab.panel" :class="changeActiveClass(tab.id)">
+                            <p v-if="tab.id == 1">
+                                <!-- {{tab.name}}
+                        id license citizenid vehicle hash mods plate fakeplate garage fuel engine body state depotprice
+                        drivingdistance status balance paymentamount paymentsleft financetime maxweight
+                        Current trunk size : ""
+                        max trunk size : ""
+                        upgrade price if possible
+                        deupgrade if possible return 70% money
+                        user has upgrade item in inventory!
+                        how many they have?!
+                        progress bar
+                        puzzle if needed!
+                        if succses notify
+                        upgrade history of car -->
+                            </p>
+
+                            <div class="car-details">
+                                <div class="col">
+                                    <div class="box" :class="theme" v-if="tab.id == 1">
+                                        <h6>Vehicle details :</h6>
+                                        <div class="vehicle-details">
+                                            <div>
+                                                <div class="input-wrapper floating-label">
+                                                    <input id="characterName" type="text"
+                                                        :value="`${this.charinfo.firstname} ${this.charinfo.lastname}`"
+                                                        style="pointer-events: none;" />
+                                                    <label for="characterName"
+                                                        class="form-label color-dark">Owner</label>
+                                                </div>
+                                                <div @click="copy($event)" class="input-wrapper floating-label">
+                                                    <input id="characterName" type="text"
+                                                        :value="`${this.charinfo.cid}`" style="pointer-events: none;" />
+                                                    <label for="characterName" class="form-label color-dark">Owner cid
+                                                        (bill)</label>
+                                                </div>
+                                                {{this.charinfo.lastname}}
+                                            </div>
+
+                                            <div @click="copy($event)">
+                                                <div class="input-wrapper floating-label">
+                                                    <input id="phoneNumb" type="tel" :value="charinfo.phone"
+                                                        style="pointer-events: none;" />
+                                                    <label for="phoneNum" class="form-label color-dark">Phone
+                                                        number</label>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div>
+                                            <button class="button open-modal" data-modal-target=".my-modal">Display
+                                                plate</button>
+
+                                            <div class="modal modal-center modal-sm my-modal" :class="theme"
+                                                tabindex="-1" aria-labelledby="my-modal-title">
+                                                <p class="plate">
+                                                    <img v-if="theme != 'style-light'" src="./img/51GqXswA6TL.png"
+                                                        alt="" srcset="">
+                                                    <img v-else src="./img/613tYoIulqL.png" alt="" srcset="">
+
+                                                    <span v-if="theme != 'style-light'"
+                                                        style="color: black;">{{this.vehInfo.plate}}</span>
+                                                    <span v-else style="color: white;">{{this.vehInfo.plate}}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="vehicle-details">
+
+                                            <div>
+                                                Current trunk size
+                                                <span class="badge style-red edge-round-sm">{{this.vehInfo.currentWeight
+                                                    / 1000}}
+                                                    kg</span>
+                                            </div>
+
+                                            <div>
+                                                max size
+                                                <span class="badge style-red edge-round-sm">10kg</span>
+                                            </div>
+
+                                            <div>
+                                                vehicle model
+                                                <span class="badge style-red edge-round-sm">{{this.vehInfo.model}}
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="col">
+
+
+                                    <article v-if="tab.id == 1" class="card vertical" :class="theme">
+                                        <img class="BKimage" :class="cardImageColor" src="./img/car-png.webp">
+                                        <header class="card-header">
+                                            <div class="card-badges">
+                                                <a href="#" class="badge style-green">isDoable</a>
+                                                <a href="#" class="badge style-accent">price = 500</a>
+                                            </div>
+                                        </header>
+                                        <div class="card-right">
+                                            <div class="card-body">
+                                                <h2 class="card-title">Upgrade Tiers</h2>
+
+                                                <template v-for="(options,index) in upgradeOptions" :key="options.id">
+                                                    <input :disabled="options.active"
+                                                        :id="`my-checkbox-${options.dataID}`" class="checkbox-button"
+                                                        type="checkbox" name="checkbox-button" />
+                                                    <label :for="`my-checkbox-${options.dataID}`"
+                                                        class="button style-blue">{{options.name}}</label>
+                                                </template>
+
+                                                <footer class="card-footer">
+                                                    <h5>{{stepPrice}}</h5>
+
+                                                    <a href="#" class="button style-red push-right color-light"
+                                                        @click="upgrade()">upgrade</a>
+                                                </footer>
+                                            </div>
+                                    </article>
+
+                                    <div v-if="tab.id == 2" class="di">
+                                        <table class="bordered horizontal">
+                                            <table class="bordered striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student</th>
+                                                        <th>Study time</th>
+                                                        <th>Homework</th>
+                                                        <th>Total grade</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Alan</td>
+                                                        <td>6</td>
+                                                        <td>9/10</td>
+                                                        <td>95</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Carlos</td>
+                                                        <td>2</td>
+                                                        <td>7/10</td>
+                                                        <td class="style-warning">72</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Kim</td>
+                                                        <td>4</td>
+                                                        <td>7/10</td>
+                                                        <td>88</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pat</td>
+                                                        <td>2</td>
+                                                        <td>4/10</td>
+                                                        <td class="style-danger">60</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Thomas</td>
+                                                        <td>5</td>
+                                                        <td>10/10</td>
+                                                        <td class="style-success">98</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </table>
+                                    </div>
+
+                                    <div v-if="tab.id == 3" class="di">
+                                        <table class="bordered horizontal">
+                                            <table class="bordered striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student</th>
+                                                        <th>Study time</th>
+                                                        <th>Homework</th>
+                                                        <th>Total grade</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Alan</td>
+                                                        <td>6</td>
+                                                        <td>9/10</td>
+                                                        <td>95</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Carlos</td>
+                                                        <td>2</td>
+                                                        <td>7/10</td>
+                                                        <td class="style-warning">72</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Kim</td>
+                                                        <td>4</td>
+                                                        <td>7/10</td>
+                                                        <td>88</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pat</td>
+                                                        <td>2</td>
+                                                        <td>4/10</td>
+                                                        <td class="style-danger">60</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Thomas</td>
+                                                        <td>5</td>
+                                                        <td>10/10</td>
+                                                        <td class="style-success">98</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </table>
+                                    </div>
+                                    <div v-if="tab.id == 4" class="settings">
+                                        <label class="toggle-wrapper">
+                                            <input type="checkbox" name="the-toggle" role="switch"
+                                                v-model="settingsCheckbox1" />
+                                            <span class="check"></span>
+                                            Theme Toggle
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+                    </template>
+                </div>
+            </div>
+
+        </div>
+    </transition>
+
+</body>
+
+<script src="./app.js"></script>
+
+</html>
