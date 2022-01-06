@@ -34,7 +34,7 @@ function upgradePocess(src, upgradeReqData)
     local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', {plate})
 
     if weightUpgrades ~= nil then
-        if saveCarWeight(upgradeReqData, weightUpgrades) then
+        if saveCarWeight(src, upgradeReqData, weightUpgrades) then
             TriggerClientEvent('QBCore:Notify', src, 'Upgrade was successful', 'success', 3500)
             TriggerClientEvent('keep-carInventoryWeight:Client:CloseUI', src)
         else
@@ -46,20 +46,11 @@ function upgradePocess(src, upgradeReqData)
     end
 end
 
-function removeMoney(src , type , amount , desc)
-    local plyert = QBCore.Functions.GetPlayer(src)
-    --local plyCid = ply.PlayerData.citizenid
-    if plyert.Functions.RemoveMoney(type, amount, "vehicle-upgrade-bail-"..desc) then
-        return true
-    end
-    return false
-end
-
-function saveCarWeight(upgradeReqData, weightUpgrades)
+function saveCarWeight(src, upgradeReqData, weightUpgrades)
     -- save car Weight 
     local weightUpgradesChanges = {}
     local upgrades = upgradeReqData["upgrade"]
-    local canUpgrade, maxweight = calculateUpgradeAmount(upgradeReqData, weightUpgrades)
+    local canUpgrade, maxweight = calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
 
     if maxweight ~= nil and canUpgrade then
         for i = 1, #upgrades, 1 do
@@ -71,7 +62,7 @@ function saveCarWeight(upgradeReqData, weightUpgrades)
     return false
 end
 
-function calculateUpgradeAmount(upgradeReqData, weightUpgrades)
+function calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
     local vehicleClass = upgradeReqData["class"]
     local vehiclePlate = upgradeReqData["plate"]
     local vehicleModel = upgradeReqData['model']
@@ -95,6 +86,9 @@ function calculateUpgradeAmount(upgradeReqData, weightUpgrades)
                     end
                     canUpgrade = (currentCarryWeight + (total * step) <= vehicleMeta.maxWeight) and
                                      (currentCarryWeight + (total * step) ~= currentCarryWeight)
+                    if canUpgrade == true then
+                        removeMoney(src , 'cash' , vehicleMeta.stepPrice * total , desc)
+                    end
                     return canUpgrade, (currentCarryWeight + (total * step))
                 end
             end
@@ -112,6 +106,15 @@ end)
 -- ============================
 --      Functions
 -- ============================
+function removeMoney(src, type, amount, desc)
+    local plyert = QBCore.Functions.GetPlayer(src)
+    -- local plyCid = ply.PlayerData.citizenid
+    if plyert.Functions.RemoveMoney(type, amount, "vehicle-upgrade-bail-" .. desc) then
+        return true
+    end
+    return false
+end
+
 function createServerResponse(Result, class)
     -- create server response when client fetch data
     local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?',
