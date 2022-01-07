@@ -2,6 +2,7 @@ const TodoList = {
   data() {
     return {
       isBodyShow: false,
+      selectedIndex: 0,
       tabs: [
         {
           id: 1,
@@ -26,11 +27,14 @@ const TodoList = {
       ],
       stepPrice: null,
       upgradeOptions: [],
-      vehInfo: [""], // server
-      charinfo: [""],
+      vehInfo: [], // server
+      charinfo: [{ firstname: "alin" }],
       settingsCheckbox1: false,
-      theme: "style-light",
-      cardImageColor: "invert_disable",
+      theme: {
+        0: "bg-dark-c text-gray-100",
+        1: "bg-dark-card-c text-white-c",
+      },
+      tablet_animation: "tablet-animation",
       // alerts meta data
       alert: {
         show: false,
@@ -46,6 +50,13 @@ const TodoList = {
     },
   },
   methods: {
+    selectTab(i) {
+      this.selectedIndex = i;
+      // loop over all the tabs
+      this.tabs.forEach((tab, index) => {
+        tab.isActive = index === i;
+      });
+    },
     upgrade() {
       // handle upgrade btn
       let size = Object.keys(this.upgradeOptions).length;
@@ -73,22 +84,24 @@ const TodoList = {
     toggleBody() {
       // toggle Display on Body
       this.isBodyShow = !this.isBodyShow;
+      this.tablet_animation = this.tablet_animation ?  "tablet-animation" : ""
     },
     Alert(msg, color) {
       this.alert.show = true;
       this.alert.msg = msg;
-      this.alert.show = color;
+      this.alert.color = color;
       setTimeout(() => {
         this.alert.show = false;
       }, 1500);
     },
     toggleTheme(state) {
-      if (state === !true) {
-        this.theme = "style-light";
-        this.cardImageColor = "invert_disable";
+      if (state === true) {
+        this.theme[0] = "bg-light text-dark-100";
+        // for some reason bg-light is not white and we need to pass it empty to stay white! (class ==> card)
+        this.theme[1] = "";
       } else {
-        this.theme = "style-dark";
-        this.cardImageColor = "invertF";
+        this.theme[0] = "bg-dark-c text-white-c";
+        this.theme[1] = "bg-dark-card-c text-white-c";
       }
     },
     changeActiveClass(value) {
@@ -104,7 +117,6 @@ const TodoList = {
       };
     },
     init(serverRes) {
-      console.log(serverRes);
       this.vehInfo = {
         class: serverRes.vehicleInfo.class,
         model: serverRes.vehicleInfo.vehicle,
@@ -130,14 +142,13 @@ const TodoList = {
       // upgradeOptions
     },
     copy(s) {
-      console.log(s.target.children[0]._value);
-      s.target.children[0].focus();
-      s.target.children[0].select();
+      s.target.focus();
+      s.target.select();
       document.execCommand("copy");
       this.Alert("Copied to clipboard", "style-success");
     },
     Open() {
-      $("#app").fadeIn(150);
+      $("#app").fadeIn(350);
       this.toggleBody();
     },
     closeMenu() {
@@ -150,7 +161,7 @@ const TodoList = {
       this.upgradeOptions = [];
       this.vehInfo = [];
       this.charinfo = [];
-      this.upgrades = [];
+      this.stepPrice = null;
     },
   },
   mounted() {
@@ -158,14 +169,13 @@ const TodoList = {
       var self = this;
       window.addEventListener("message", function (event) {
         //
-        console.log(event);
         switch (event.data.action) {
           case "open":
             self.init(event.data.data);
             self.Open();
             break;
           case "close":
-            self.closeMenu()
+            self.closeMenu();
             break;
         }
       });

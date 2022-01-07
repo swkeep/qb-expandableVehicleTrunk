@@ -7,278 +7,189 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UI</title>
     <!-- CSS -->
-
-    <link href="./css/flatify.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="./css/cirrus.css" rel="stylesheet" crossorigin="anonymous" />
     <link rel="stylesheet" href="./style.css" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
-        type="text/css" />
     <!-- JavaScript -->
     <script src="./js/vue.js"></script>
     <script type="text/javascript" src="./js/jquery-3.6.0.min.js"></script>
-    <script src="./js/popper.min.js" crossorigin="anonymous"></script>
-    <script src="./js/flatify.min.js" crossorigin="anonymous"></script>
 </head>
 
 <body id="app">
-    <transition name="tablet">
-        <div v-show="isBodyShow" class="tablet">
+    <button @click="toggleBody()"> open </button>
 
-            <!-- Alert -->
-            <transition name="fade" mode="out-in">
-                <div v-if="alert.show" class="alert" :class="alert.color">
-                    {{alert.msg}}
-                    <button class="close-button floating" :click="toggleAlert"></button>
+    <div class="tablet-wrapper">
+        <transition name="bounce">
+            <div v-show="isBodyShow" class="tablet" :class="tablet_animation">
+                <!-- modal -->
+                <div class="modal modal-animated--zoom-in" id="structure-modal"><a href="#searchModalDialog"
+                        class="modal-overlay close-btn" aria-label="Close"></a>
+                    <div class="modal-content" role="document">
+                        <div class="plate">
+                            <img v-if="theme[1] == ''" src="./img/51GqXswA6TL.png" alt="" srcset="">
+                            <img v-else src="./img/613tYoIulqL.png" alt="" srcset="">
+                            <span v-if="theme[1] == ''" style="color: black;">{{this.vehInfo.plate}}</span>
+                            <span v-else style="color: white;">{{this.vehInfo.plate}}</span>
+                        </div>
+
+                    </div>
                 </div>
-            </transition>
-            <!-- End Alert -->
+                <!-- end modal -->
 
-            <img src="./background.png" alt="" srcset="">
-            <div class="tabs-wrapper" :class="theme">
-                <div class="tabs-header" role="tablist">
-                    <button class="close-button" :class="theme" @click="closeMenu"></button>
-                    <template v-for="tab in tabs" :key="tab.id">
-                        <button role="tab" :class="changeActiveButton(tab.id)" :aria-controls="tab.panel">
-                            {{tab.name}}
-                        </button>
-                    </template>
-                </div>
-                <div class="tabs-content" :class="theme">
-                    <template v-for="tab in tabs" :key="tab.id">
-                        <div :id="tab.panel" :class="changeActiveClass(tab.id)">
-                            <p v-if="tab.id == 1">
-                                <!-- {{tab.name}}
-                        id license citizenid vehicle hash mods plate fakeplate garage fuel engine body state depotprice
-                        drivingdistance status balance paymentamount paymentsleft financetime maxweight
-                        Current trunk size : ""
-                        max trunk size : ""
-                        upgrade price if possible
-                        deupgrade if possible return 70% money
-                        user has upgrade item in inventory!
-                        how many they have?!
-                        progress bar
-                        puzzle if needed!
-                        if succses notify
-                        upgrade history of car -->
-                            </p>
+                <!-- Alert -->
+                <transition name="fade" mode="out-in">
+                    <div v-if="alert.show" class="alert" :class="alert.color">
+                        <div class="wrapper">
+                            <div class="row">
+                                {{alert.msg}}
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+                <!-- End Alert -->
 
-                            <div class="car-details">
-                                <div class="col">
-                                    <div class="box" :class="theme" v-if="tab.id == 1">
-                                        <h6>Vehicle details :</h6>
-                                        <div class="vehicle-details">
-                                            <div>
-                                                <div class="input-wrapper floating-label">
-                                                    <input id="characterName" type="text"
-                                                        :value="`${this.charinfo.firstname} ${this.charinfo.lastname}`"
-                                                        style="pointer-events: none;" />
-                                                    <label for="characterName"
-                                                        class="form-label color-dark">Owner</label>
-                                                </div>
-                                                <div @click="copy($event)" class="input-wrapper floating-label">
-                                                    <input id="characterName" type="text"
-                                                        :value="`${this.charinfo.cid}`" style="pointer-events: none;" />
-                                                    <label for="characterName" class="form-label color-dark">Owner cid
-                                                        (bill)</label>
-                                                </div>
-                                                {{this.charinfo.lastname}}
-                                            </div>
 
-                                            <div @click="copy($event)">
-                                                <div class="input-wrapper floating-label">
-                                                    <input id="phoneNumb" type="tel" :value="charinfo.phone"
-                                                        style="pointer-events: none;" />
-                                                    <label for="phoneNum" class="form-label color-dark">Phone
-                                                        number</label>
-                                                </div>
-                                            </div>
+                <img src="./background.png" alt="" srcset="">
+                <div class="tabs-wrapper" :class="theme[0]">
 
+                    <div class="tab-container" :class="theme[0]">
+                        <ul>
+                            <li v-for="(tab, index) in tabs" :key="tab.name" @click="selectTab(index)"
+                                :class='{"selected": (index == selectedIndex)}'>
+                                <div class="tab-item-content" :class="theme[0]">{{tab.name}}</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="row tab-content" :class="theme[0]">
+
+                        <transition name="fade">
+                            <div class="col-8" v-if="selectedIndex == 0">
+                                <div class="card" :class="theme[1]">
+                                    <p class="title"> Vehicle details :</p>
+                                    <div class="content">
+                                        <div class="row">
+                                            <div class="col-4">Firstname: <code>{{charinfo.firstname}}</code></div>
+                                            <div class="col-4">Lastname: <code>{{charinfo.lastname}}</code></div>
+                                            <div class="col-4">
+                                                <label class="tooltip tooltip-bottom" data-tooltip="Owner ID">
+                                                    <input @click="copy($event)" type="text" :value="charinfo.cid" />
+                                                </label></div>
                                         </div>
-
-                                        <div>
-                                            <button class="button open-modal" data-modal-target=".my-modal">Display
-                                                plate</button>
-
-                                            <div class="modal modal-center modal-sm my-modal" :class="theme"
-                                                tabindex="-1" aria-labelledby="my-modal-title">
-                                                <p class="plate">
-                                                    <img v-if="theme != 'style-light'" src="./img/51GqXswA6TL.png"
-                                                        alt="" srcset="">
-                                                    <img v-else src="./img/613tYoIulqL.png" alt="" srcset="">
-
-                                                    <span v-if="theme != 'style-light'"
-                                                        style="color: black;">{{this.vehInfo.plate}}</span>
-                                                    <span v-else style="color: white;">{{this.vehInfo.plate}}</span>
-                                                </p>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input @click="copy($event)" id="phoneNumb" type="tel"
+                                                    :value="charinfo.phone" />
+                                                <span class="info u-text-center">Phone
+                                                    number</span>
                                             </div>
                                         </div>
 
-                                        <div class="vehicle-details">
-
-                                            <div>
-                                                Current trunk size
-                                                <span class="badge style-red edge-round-sm">{{this.vehInfo.currentWeight
-                                                    / 1000}}
-                                                    kg</span>
-                                            </div>
-
-                                            <div>
-                                                max size
-                                                <span class="badge style-red edge-round-sm">10kg</span>
-                                            </div>
-
-                                            <div>
-                                                vehicle model
-                                                <span class="badge style-red edge-round-sm">{{this.vehInfo.model}}
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="tooltip tooltip-bottom" data-tooltip="Current weight">
+                                                    <input type="text" :value="`${charinfo.currentWeight/1000} kg`" />
+                                                </label>
                                                 </span>
                                             </div>
 
+                                            <div class="col-4">
+                                                <label class="tooltip tooltip-bottom" data-tooltip="Max Carry weight">
+                                                    <input type="tel" :value="charinfo.phone" />
+                                                </label>
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="tooltip tooltip-bottom" data-tooltip="1x upgrade price">
+                                                    <input type="tel" :value="`${stepPrice} $`" />
+                                                </label>
+                                            </div>
                                         </div>
 
                                     </div>
+                                    <div class="card__action-bar u-center">
 
-                                </div>
-                                <div class="col">
-
-
-                                    <article v-if="tab.id == 1" class="card vertical" :class="theme">
-                                        <img class="BKimage" :class="cardImageColor" src="./img/car-png.webp">
-                                        <header class="card-header">
-                                            <div class="card-badges">
-                                                <a href="#" class="badge style-green">isDoable</a>
-                                                <a href="#" class="badge style-accent">price = 500</a>
-                                            </div>
-                                        </header>
-                                        <div class="card-right">
-                                            <div class="card-body">
-                                                <h2 class="card-title">Upgrade Tiers</h2>
-
-                                                <template v-for="(options,index) in upgradeOptions" :key="options.id">
-                                                    <input :disabled="options.active"
-                                                        :id="`my-checkbox-${options.dataID}`" class="checkbox-button"
-                                                        type="checkbox" name="checkbox-button" />
-                                                    <label :for="`my-checkbox-${options.dataID}`"
-                                                        class="button style-blue">{{options.name}}</label>
-                                                </template>
-
-                                                <footer class="card-footer">
-                                                    <h5>{{stepPrice}}</h5>
-
-                                                    <a href="#" class="button style-red push-right color-light"
-                                                        @click="upgrade()">upgrade</a>
-                                                </footer>
-                                            </div>
-                                    </article>
-
-                                    <div v-if="tab.id == 2" class="di">
-                                        <table class="bordered horizontal">
-                                            <table class="bordered striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Student</th>
-                                                        <th>Study time</th>
-                                                        <th>Homework</th>
-                                                        <th>Total grade</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Alan</td>
-                                                        <td>6</td>
-                                                        <td>9/10</td>
-                                                        <td>95</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Carlos</td>
-                                                        <td>2</td>
-                                                        <td>7/10</td>
-                                                        <td class="style-warning">72</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Kim</td>
-                                                        <td>4</td>
-                                                        <td>7/10</td>
-                                                        <td>88</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Pat</td>
-                                                        <td>2</td>
-                                                        <td>4/10</td>
-                                                        <td class="style-danger">60</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Thomas</td>
-                                                        <td>5</td>
-                                                        <td>10/10</td>
-                                                        <td class="style-success">98</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </table>
+                                        <a href="#structure-modal">
+                                            <button class="btn-link outline" :class="theme[1]">Plate</button>
+                                        </a>
+                                        <button class="btn-link outline" :class="theme[1]">Go here</button>
                                     </div>
-
-                                    <div v-if="tab.id == 3" class="di">
-                                        <table class="bordered horizontal">
-                                            <table class="bordered striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Student</th>
-                                                        <th>Study time</th>
-                                                        <th>Homework</th>
-                                                        <th>Total grade</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Alan</td>
-                                                        <td>6</td>
-                                                        <td>9/10</td>
-                                                        <td>95</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Carlos</td>
-                                                        <td>2</td>
-                                                        <td>7/10</td>
-                                                        <td class="style-warning">72</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Kim</td>
-                                                        <td>4</td>
-                                                        <td>7/10</td>
-                                                        <td>88</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Pat</td>
-                                                        <td>2</td>
-                                                        <td>4/10</td>
-                                                        <td class="style-danger">60</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Thomas</td>
-                                                        <td>5</td>
-                                                        <td>10/10</td>
-                                                        <td class="style-success">98</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </table>
+                                    <div class="card__footer">
+                                        <div class="u-text-center"><span>Vehicle model ==>
+                                                <code>{{vehInfo.model}}</code></span></div>
                                     </div>
-                                    <div v-if="tab.id == 4" class="settings">
-                                        <label class="toggle-wrapper">
-                                            <input type="checkbox" name="the-toggle" role="switch"
-                                                v-model="settingsCheckbox1" />
-                                            <span class="check"></span>
-                                            Theme Toggle
-                                        </label>
-                                    </div>
-
                                 </div>
                             </div>
-                    </template>
+                        </transition>
+
+                        <transition name="fade">
+                            <div class="col-4" v-if="selectedIndex == 0">
+                                <div class="card" :class="theme[1]" style="max-width: 350px;">
+
+                                    <p class="title"> Choice Upgrade:</p>
+
+                                    <div class="content">
+                                        <div class="row">
+                                            <template v-for="(options,index) in upgradeOptions" :key="options.id">
+                                                <input :disabled="options.active" :id="`my-checkbox-${options.dataID}`"
+                                                    class="checkbox-button" type="checkbox" name="checkbox-button" />
+                                                <label :for="`my-checkbox-${options.dataID}`"
+                                                    class="button style-blue">{{options.name}}</label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="card__action-bar u-center">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <button class="btn-link outline" :class="theme[1]"
+                                                    @click="upgrade()">upgrade</button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button class="btn-link outline" :class="theme[1]">here</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="card__footer">
+                                        <div class="u-text-center"><span>This is additional footer text in
+                                                <code>card__footer</code>.</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <transition name="fade">
+                            <div v-else-if="selectedIndex == 1">
+                                <!-- vehicle history -->
+                            </div>
+                        </transition>
+
+                        <transition name="fade">
+                            <div v-else-if="selectedIndex == 2">
+                                <!-- payment history -->
+                            </div>
+                        </transition>
+
+                        <transition name="fade">
+                            <div v-if="selectedIndex == 3">
+                                <!-- settings -->
+                                <div class="form-ext-control">
+                                    <label class="form-ext-toggle__label"><span>Theme Toggle</span>
+                                        <div class="form-ext-toggle">
+                                            <input name="toggleCheckbox" v-model="settingsCheckbox1" type="checkbox"
+                                                class="form-ext-input" />
+                                            <div class="form-ext-toggle__toggler"><i></i></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
+
                 </div>
             </div>
 
-        </div>
+    </div>
     </transition>
+    </div>
+
 
 </body>
 
