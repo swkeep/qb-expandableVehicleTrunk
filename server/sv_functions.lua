@@ -52,14 +52,14 @@ function calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
                     local currentCarryWeight = oxmysql:scalarSync(
                         'SELECT maxweight from player_vehicles where plate = ?', {vehiclePlate})
 
-                    local step = (vehicleMeta.maxWeight - vehicleMeta.minWeight) / vehicleMeta.upgrades
+                    local step = (vehicleMeta.maxCarryCapacity - vehicleMeta.minCarryCapacity) / vehicleMeta.upgrades
                     local total = 0
                     for key, value in pairs(sortedUpgrades) do
                         if value == true and weightUpgradesTable[tostring(key)] ~= value then
                             total = total + 1
                         end
                     end
-                    canUpgrade = (currentCarryWeight + (total * step) <= vehicleMeta.maxWeight) and
+                    canUpgrade = (currentCarryWeight + (total * step) <= vehicleMeta.maxCarryCapacity) and
                                      (currentCarryWeight + (total * step) ~= currentCarryWeight)
                     if canUpgrade == true then
                         local paid = removeMoney(src, 'cash', vehicleMeta.stepPrice * total, 'trunk')
@@ -105,6 +105,7 @@ function createServerResponse(Result, class)
             for name, vehicleMeta in pairs(Vehicle) do
                 if name == Result[1]["vehicle"] then
                     Upgrades = createUpgrades(vehicleMeta, weightUpgrades, Result[1])
+                    sv_response['vehicleInfo']['maxCarryCapacity'] = vehicleMeta.maxCarryCapacity
                 end
             end
         end
@@ -116,7 +117,7 @@ end
 function createUpgrades(vehicleMeta, weightUpgrades, vehicle)
     local temp = {}
     local weightUpgrades = json.decode(weightUpgrades)
-    local step = (vehicleMeta.maxWeight - vehicleMeta.minWeight) / vehicleMeta.upgrades
+    local step = (vehicleMeta.maxCarryCapacity - vehicleMeta.minCarryCapacity) / vehicleMeta.upgrades
 
     if weightUpgrades ~= nil then
         for k, value in pairs(weightUpgrades) do
@@ -137,7 +138,7 @@ function initWeightUpgradesData(vehicleMeta, vehicle, step)
         table.insert(initWeightUpgrades, string.format('"%s":%s', i, false))
     end
 
-    updateVehicleDatabaseValues(vehicleMeta.minWeight, initWeightUpgrades, vehicle)
+    updateVehicleDatabaseValues(vehicleMeta.minCarryCapacity, initWeightUpgrades, vehicle)
 
     -- step , stepPrice is for client to show to players
     table.insert(initWeightUpgrades, string.format('"%s":%s', 'step', step))

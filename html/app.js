@@ -28,7 +28,8 @@ const TodoList = {
       stepPrice: null,
       upgradeOptions: [],
       vehInfo: [], // server
-      charinfo: [{ firstname: "alin" }],
+      charinfo: [],
+      upgrades: [],
       settingsCheckbox1: false,
       theme: {
         0: "bg-dark-c text-gray-100",
@@ -57,7 +58,34 @@ const TodoList = {
         tab.isActive = index === i;
       });
     },
-    upgrade() {
+    updateUpgradeListConfirmation() {
+      let size = Object.keys(this.upgradeOptions).length;
+      let upgrades = [];
+      for (let index = 0; index < size; index++) {
+        let element = document.getElementById(`my-checkbox-id-${index + 1}`);
+        if (element) {
+          let checked = element.checked;
+          if (element.checked && !element.disabled) {
+            upgrades.push(checked);
+          }
+        }
+      }
+      if (upgrades.length !== 0) {
+        location.href = "#ConfirmUpgrade-modal";
+      } else {
+        this.Alert("You didn't choice any upgrades!")
+        let btn = document.getElementById("upgradeBtn");
+        btn.className = "btn-danger";
+        btn.disabled = true;
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.className = "btn-link outline";
+          location.href = "#ConfirmUpgradeModalDialog";
+        }, 1500);
+      }
+      this.upgrades = upgrades;
+    },
+    upgrade(e) {
       // handle upgrade btn
       let size = Object.keys(this.upgradeOptions).length;
       let upgrades = [];
@@ -79,12 +107,41 @@ const TodoList = {
         class: this.vehInfo.class,
       };
 
-      upgradeReq(data);
+      e.target.disabled = true;
+
+      fetch(`https://keep-carInventoryWeight/upgradeReq`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
+        body: JSON.stringify(data),
+      })
+        .then((resp) => resp.json())
+        .then((resp) => {
+          e.target.className =
+            "btn-success text-white-c animated loading loading-left";
+          setTimeout(() => {
+            e.target.disabled = false;
+            e.target.className = "btn-info btn-small u-inline-block";
+            location.href = "#ConfirmUpgradeModalDialog";
+          }, 1500);
+        })
+        .catch((error) => {
+          let modal = document.getElementById("ConfirmUpgrade-modal");
+          modal.style = "pointer-events:none;";
+          e.target.className = "btn-danger text-white-c";
+          setTimeout(() => {
+            modal.style = "";
+            e.target.disabled = false;
+            e.target.className = "btn-info btn-small u-inline-block";
+            location.href = "#ConfirmUpgradeModalDialog";
+            this.Alert("Failed to fetch data from server!", "style-error");
+            this.closeMenu();
+          }, 750);
+        });
     },
     toggleBody() {
       // toggle Display on Body
       this.isBodyShow = !this.isBodyShow;
-      this.tablet_animation = this.tablet_animation ?  "tablet-animation" : ""
+      this.tablet_animation = this.tablet_animation ? "tablet-animation" : "";
     },
     Alert(msg, color) {
       this.alert.show = true;
@@ -116,6 +173,13 @@ const TodoList = {
         "tab-button": value > 1,
       };
     },
+    isMaxCarryCapacity() {
+      if (this.vehInfo.maxCarryCapacity - this.vehInfo.currentWeight > 0) {
+        return false;
+      } else {
+        return true;
+      }
+    },
     init(serverRes) {
       this.vehInfo = {
         class: serverRes.vehicleInfo.class,
@@ -123,6 +187,7 @@ const TodoList = {
         plate: serverRes.vehicleInfo.plate,
         hash: serverRes.vehicleInfo.hash,
         currentWeight: serverRes.vehicleInfo.maxweight,
+        maxCarryCapacity: serverRes.vehicleInfo.maxCarryCapacity,
       };
       this.charinfo = serverRes.characterInfo;
 
@@ -162,6 +227,8 @@ const TodoList = {
       this.vehInfo = [];
       this.charinfo = [];
       this.stepPrice = null;
+      this.upgrades = [];
+      this.isBodyShow = false;
     },
   },
   mounted() {
@@ -192,12 +259,16 @@ const app = Vue.createApp(TodoList);
 
 app.mount("#app");
 
-function upgradeReq(data = {}, cb = () => {}) {
-  fetch(`https://keep-carInventoryWeight/upgradeReq`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=UTF-8" },
-    body: JSON.stringify(data),
-  })
-    .then((resp) => resp.json())
-    .then((resp) => cb(resp));
-}
+new gridjs.Grid({
+  columns: ["Name", "Email", "Phone Number"],
+  data: [
+    ["John", "john@example.com", "(353) 01 222 3333"],
+    ["Mark", "mark@gmail.com", "(01) 22 888 4444"],
+    ["Eoin", "eoin@gmail.com", "0097 22 654 00033"],
+    ["Sarah", "sarahcdd@gmail.com", "+322 876 1233"],
+    ["Afshin", "afshin@mail.com", "(353) 22 87 8356"],
+  ],
+  search: {
+    enabled: true,
+  },
+}).render(document.getElementById("myGrid"));

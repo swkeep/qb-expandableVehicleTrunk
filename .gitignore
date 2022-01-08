@@ -1,7 +1,7 @@
 # Compiled Lua sources
 luac.out
 html/img/*.psd
-
+\.vscode
 # luarocks build files
 *.src.rock
 *.zip
