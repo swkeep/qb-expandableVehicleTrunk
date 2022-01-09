@@ -16,17 +16,15 @@
     <script src="https://kit.fontawesome.com/fd566e9240.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" /> -->
-
+    <script type="text/javascript" src="./js/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/vue@3.2.26/dist/vue.global.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
     <script src="https://kit.fontawesome.com/fd566e9240.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 </head>
 
 <body id="app">
-    <button @click="toggleBody()"> open </button>
-
+    
     <div class="tablet-wrapper">
         <transition name="bounce">
             <div v-show="isBodyShow" class="tablet" :class="tablet_animation">

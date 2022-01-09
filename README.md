@@ -2,7 +2,7 @@
 Custom server-side vehicle inventory weight
 
 # desc
-**IMPORTANT: Project is on development and not fully functional so bugs should be expected.
+**IMPORTANT: Project is under development and not fully functional so bugs should be expected.
 
 # instalation
 * import expandableVehicleTrunk.sql

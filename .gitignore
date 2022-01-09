@@ -1,4 +1,5 @@
 html/img/*.psd
 html/js/*.js
+!html/js/jquery-3.6.0.min.js
 html/css/*.css
 html/css/*.css
