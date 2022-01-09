@@ -3,6 +3,21 @@ Custom server-side vehicle inventory weight
 
 # desc
 **IMPORTANT: Project is under development and not fully functional so bugs should be expected.
+**IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
+
+# Config
+```lua
+    [7] = { -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
+        ["sultanrsv8"] = {
+            minCarryCapacity = 10000,
+            maxCarryCapacity = 100000,
+            upgrades = 4,
+            stepPrice = 1000
+        }
+    },
+```
+** [index] index is vehicle class you need add 
+** vehicles under their class name and set capacity
 
 # instalation
 * import expandableVehicleTrunk.sql
