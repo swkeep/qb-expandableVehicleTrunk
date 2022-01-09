@@ -33,36 +33,31 @@ local other = {
 * open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
 
 ```lua
-end
 if Trunks[id].isOpen then
-						local Target = QBCore.Functions.GetPlayer(Trunks[id].isOpen)
-						if Target ~= nil then
-							TriggerClientEvent('inventory:client:CheckOpenState', Trunks[id].isOpen, name, id, Trunks[id].label)
-						else
-							Trunks[id].isOpen = false
-						end
-					end
-				end
+    local Target = QBCore.Functions.GetPlayer(Trunks[id].isOpen)
+    if Target ~= nil then
+        TriggerClientEvent('inventory:client:CheckOpenState', Trunks[id].isOpen, name, id, Trunks[id].label)
+    else
+        Trunks[id].isOpen = false
+    end
+    end
+end
 
+    ( ADD CODE HERE )
 
-
-                ( ADD CODE HERE )
-
-
-
-				secondInv.name = "trunk-"..id
-				secondInv.label = "Trunk-"..id
+secondInv.name = "trunk-"..id
+secondInv.label = "Trunk-"..id
 ```
 
 * replace ( ADD CODE HERE ) with code below
 
 ```lua
-                Result = exports.oxmysql:scalarSync('SELECT `maxweight` FROM player_vehicles WHERE plate = ?',
-                    {other.plate})
-                if Result then
-                    local maxweight_Server = json.decode(Result)
-                    other.maxweight = maxweight_Server
-                end
+    Result = exports.oxmysql:scalarSync('SELECT `maxweight` FROM player_vehicles WHERE plate = ?',
+        {other.plate})
+    if Result then
+        local maxweight_Server = json.decode(Result)
+        other.maxweight = maxweight_Server
+    end
 ```
 
 
