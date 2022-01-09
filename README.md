@@ -17,8 +17,7 @@ Custom server-side vehicle inventory weight
         }
     },
 ```
-** [index] index is vehicle class you need add 
-** vehicles under their class name and set capacity
+** [index] index is vehicle class you need to add them and set capacity manually
 
 # instalation
 * import expandableVehicleTrunk.sql
