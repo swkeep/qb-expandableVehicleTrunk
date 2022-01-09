@@ -1,35 +1,36 @@
-<<<<<<< HEAD
 # qb-expandableVehicleTrunk
-
 Custom server-side vehicle inventory weight
 
-# instalation
+# desc
+**IMPORTANT: Project is on development and not fully functional so bugs should be expected.
 
-- first find "if CurrentVehicle ~= nil then -- Trunk" in qb-inventory/client/main.lua
-  \*\* then add code below aftter first line ("local vehicleClass = GetVehicleClass(curVeh)")
+# instalation
+* import expandableVehicleTrunk.sql
+* find "if CurrentVehicle ~= nil then -- Trunk" in qb-inventory/client/main.lua
+* then add code below aftter first line ("local vehicleClass = GetVehicleClass(curVeh)")
 
 ```lua
 local plate = QBCore.Functions.GetPlate(curVeh)
 ```
 
-\*\* now find code bewlow and edit it as
+* now find code below and edit it as
 
 ```lua
 local other = {
-maxweight = maxweight,
-slots = slots,
+    maxweight = maxweight,
+    slots = slots,
 }
 ```
 
 ```lua
 local other = {
-                        maxweight = maxweight,
-                        slots = slots,
-                        plate = plate
-                    }
+    maxweight = maxweight,
+    slots = slots,
+    plate = plate
+}
 ```
 
-- open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
+* open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
 
 ```lua
 end
@@ -53,7 +54,7 @@ if Trunks[id].isOpen then
 				secondInv.label = "Trunk-"..id
 ```
 
-- replace ( ADD CODE HERE ) with code below
+* replace ( ADD CODE HERE ) with code below
 
 ```lua
                 Result = exports.oxmysql:scalarSync('SELECT `maxweight` FROM player_vehicles WHERE plate = ?',
@@ -72,5 +73,5 @@ if Trunks[id].isOpen then
 ![tabletC](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/4.jpg)
 ![upgradeAnimation](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/5.jpg)
 ![currentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/6.jpg)
-![UpgradeCurrentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/5.jpg)
+![UpgradeCurrentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/7.jpg)
 
