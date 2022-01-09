@@ -145,28 +145,6 @@ function ToggleTablet(toggle)
     end
 end
 
-function ToggleBlowtorch(toggle)
-    local ped = PlayerPedId()
-    local pos = GetEntityCoords(ped)
-    local veh = CoreName.Functions.GetClosestVehicle(pos)
-    if IsPedInAnyVehicle(ped) then
-        veh = GetVehiclePedIsIn(ped)
-        while IsPedInAnyVehicle(ped) do
-            TaskLeaveVehicle(ped --[[ Ped ]] , veh --[[ Vehicle ]] , 1 --[[ integer ]] )
-            Wait(750)
-        end
-    end
-    Wait(500)
-    makeEntityFaceEntity(ped, veh)
-    if toggle then
-        SetCurrentPedWeapon(ped, "weapon_unarmed", true)
-        TaskStartScenarioInPlace(ped, "WORLD_HUMAN_WELDING", 0, true)
-    elseif not toggle then
-        SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
-        ClearPedTasks(ped)
-    end
-end
-
 -- ============================
 --     Command
 -- ============================

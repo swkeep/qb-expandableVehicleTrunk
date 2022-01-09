@@ -47,6 +47,7 @@ function ToggleBlowtorch(toggle)
         SetCurrentPedWeapon(ped, "weapon_unarmed", true)
         TaskStartScenarioInPlace(ped, "WORLD_HUMAN_WELDING", 0, true)
     elseif not toggle then
+        SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
         ClearPedTasks(ped)
     end
 end
