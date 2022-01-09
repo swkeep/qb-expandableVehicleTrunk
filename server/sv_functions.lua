@@ -111,6 +111,17 @@ function createServerResponse(Result, class)
         end
     end
     sv_response['upgrades'] = Upgrades
+
+    -- need better implementation
+    -- desc : when we init vehicle database client need to get new carryWeight not old one
+    if sv_response['upgrades']["init"] == true then
+        Wait(500)
+        local currentCarryWeight = oxmysql:scalarSync('SELECT maxweight from player_vehicles where plate = ?',
+            {sv_response['vehicleInfo']['plate']})
+        sv_response['vehicleInfo']['maxweight'] = currentCarryWeight
+        sv_response['upgrades']["init"] = nil
+    end
+
     return sv_response
 end
 
@@ -143,6 +154,7 @@ function initWeightUpgradesData(vehicleMeta, vehicle, step)
     -- step , stepPrice is for client to show to players
     table.insert(initWeightUpgrades, string.format('"%s":%s', 'step', step))
     table.insert(initWeightUpgrades, string.format('"%s":%s', 'stepPrice', vehicleMeta.stepPrice))
+    table.insert(initWeightUpgrades, string.format('"%s":%s', 'init', true))
 
     initWeightUpgrades = "{" .. table.concat(initWeightUpgrades, ",") .. "}"
     return json.decode(initWeightUpgrades)
@@ -157,11 +169,9 @@ function updateVehicleDatabaseValues(maxweight, weightUpgradesChanges, upgradeRe
 
     oxmysql:update('UPDATE `player_vehicles` SET maxweight = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
         {maxweight, model, hash, plate}, function(result)
-            print(result, "maxweight updated")
         end)
     oxmysql:update('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
         {weightUpgradesChanges2, model, hash, plate}, function(result)
-            print(result, "weightUpgrades updated")
         end)
 end
 

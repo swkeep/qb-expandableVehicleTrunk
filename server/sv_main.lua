@@ -1,8 +1,8 @@
 local CoreName = exports['qb-core']:GetCoreObject()
 local oxmysql = exports.oxmysql
 
-RegisterServerEvent('keep-carInventoryWeight:server:playerVehicleData')
-AddEventHandler('keep-carInventoryWeight:server:playerVehicleData', function(plate, class, genInfo)
+RegisterServerEvent('qb-expandableVehicleTrunk:server:playerVehicleData')
+AddEventHandler('qb-expandableVehicleTrunk:server:playerVehicleData', function(plate, class, genInfo)
     local src = source
 
     if genInfo["stopped"] == 1 and genInfo["engineRunning"] == false then
@@ -12,7 +12,7 @@ AddEventHandler('keep-carInventoryWeight:server:playerVehicleData', function(pla
         if #Result ~= 0 then
             -- send requested vehicle to client  
             local sv_response = createServerResponse(Result, class)
-            TriggerClientEvent("keep-carInventoryWeight:Client:Sv_OpenUI", src, sv_response)
+            TriggerClientEvent("qb-expandableVehicleTrunk:Client:Sv_OpenUI", src, sv_response)
             return true
         elseif #Result == 0 then
             TriggerClientEvent('QBCore:Notify', src, 'We cant find owner of this vehicle!', 'error', 2500)
@@ -27,32 +27,20 @@ AddEventHandler('keep-carInventoryWeight:server:playerVehicleData', function(pla
 end)
 
 
-CoreName.Functions.CreateCallback('keep-carInventoryWeight:server:reciveUpgradeReq', function(source, cb, data)
+CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:reciveUpgradeReq', function(source, cb, data)
     local src = source
     -- client wants to upgrade ==> start animation
-    TriggerClientEvent('keep-carInventoryWeight:Client:startUpgrading', src, upgradeReqData)
-    if found ~= nil then
+    if TriggerClientEvent('qb-expandableVehicleTrunk:Client:startUpgrading', src, data) then
         cb(true)
     else
         cb(false)
     end
 end)
 
--- RegisterNetEvent('keep-carInventoryWeight:server:reciveUpgradeReq', function(upgradeReqData)
---     local src = source
---     -- client wants to upgrade ==> start animation
---     TriggerClientEvent('keep-carInventoryWeight:Client:startUpgrading', src, upgradeReqData)
--- end)
-
-RegisterNetEvent('keep-carInventoryWeight:server:proccesUpgradeReq', function(upgradeReqData)
+RegisterNetEvent('qb-expandableVehicleTrunk:server:proccesUpgradeReq', function(upgradeReqData)
     -- process upgrade request sent by client after animation is done
     local src = source
-    -- upgradePocess(src, upgradeReqData)
-end)
-
-RegisterNetEvent('keep-carInventoryWeight:server:ssssssssss', function()
-    local src = source
-    TriggerClientEvent('keep-carInventoryWeight:Client:OpenUI', src)
+    upgradePocess(src, upgradeReqData)
 end)
 
 CoreName.Functions.CreateUseableItem("capacitytablet", function(source, item)
@@ -60,7 +48,7 @@ CoreName.Functions.CreateUseableItem("capacitytablet", function(source, item)
     local src = source
     if (Player.PlayerData.job.name == "mechanic" and Player.PlayerData.job.onduty) then
         if Player.Functions.GetItemByName(item.name) then
-            TriggerClientEvent('keep-carInventoryWeight:Client:isPlayingAnimation', src)
+            TriggerClientEvent('qb-expandableVehicleTrunk:Client:isPlayingAnimation', src)
         end
     elseif Player.PlayerData.job.onduty == false then
         TriggerClientEvent('QBCore:Notify', source, 'You must be onDuty!', 'error', 2500)
@@ -74,11 +62,11 @@ end)
 -- ============================
 
 CoreName.Commands.Add("testOpen", "(Admin Only)", {}, false, function(source)
-    TriggerClientEvent('keep-carInventoryWeight:Client:OpenUI', source)
+    TriggerClientEvent('qb-expandableVehicleTrunk:Client:OpenUI', source)
 end, 'admin')
 
 CoreName.Commands.Add("mechDuty", "(Admin Only)", {}, false, function(source)
-    TriggerClientEvent("keep-carInventoryWeight:Client:mechDuty", source)
+    TriggerClientEvent("qb-expandableVehicleTrunk:Client:mechDuty", source)
 end, 'admin')
 
 CoreName.Commands.Add('addTablet', 'add tablet to player inventory (Admin Only)', {}, false, function(source)
