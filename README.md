@@ -10,7 +10,17 @@ Custom server-side vehicle inventory weight
 - admin only commands:
    -- /testOpen open Ui without tablet in hand
    -- /mechDuty toggle duty
-   -- /addTablet and one tablet to player inventory 
+   -- /addTablet and one tablet to player inventory
+   
+# working on 
+* Vehicle upgrade history (multiuser)
+* Payment history (multiuser)
+* move notifications to tablet
+* add locksceen (if needed)
+* mini game
+* tax
+* remove upgrades and recive refund
+* add vehicles to config file
 
 # Config
 ```lua
