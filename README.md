@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # qb-expandableVehicleTrunk
 
 Custom server-side vehicle inventory weight
