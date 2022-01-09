@@ -3,7 +3,8 @@ Custom server-side vehicle inventory weight
 
 # desc
 **IMPORTANT: Project is under development and not fully functional so bugs should be expected.
-**IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
+
+*IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
 
 # Config
 ```lua
