@@ -6,6 +6,12 @@ Custom server-side vehicle inventory weight
 
 *IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
 
+# Commands
+- admin only commands:
+   -- /testOpen open Ui without tablet in hand
+   -- /mechDuty toggle duty
+   -- /addTablet and one tablet to player inventory 
+
 # Config
 ```lua
     [7] = { -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
