@@ -6,12 +6,12 @@ local oxmysql = exports.oxmysql
 -- ============================
 function upgradePocess(src, upgradeReqData)
     local plate = upgradeReqData["plate"]
-    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', {plate})
+    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', { plate })
 
     if weightUpgrades ~= nil then
         if saveCarWeight(src, upgradeReqData, weightUpgrades) then
             TriggerClientEvent('QBCore:Notify', src, 'Upgrade was successful', 'success', 3500)
-            TriggerClientEvent('keep-carInventoryWeight:Client:CloseUI', src)
+            TriggerClientEvent('qb-expandableVehicleTrunk:Client:CloseUI', src)
         else
             TriggerClientEvent('QBCore:Notify', src, 'unable to upgrade!', 'error', 3500)
         end
@@ -22,7 +22,7 @@ function upgradePocess(src, upgradeReqData)
 end
 
 function saveCarWeight(src, upgradeReqData, weightUpgrades)
-    -- save car Weight 
+    -- save car Weight
     local weightUpgradesChanges = {}
     local upgrades = upgradeReqData["upgrade"]
     local canUpgrade, maxweight = calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
@@ -50,7 +50,7 @@ function calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
             for model, vehicleMeta in pairs(Vehicle) do
                 if model == vehicleModel then
                     local currentCarryWeight = oxmysql:scalarSync(
-                        'SELECT maxweight from player_vehicles where plate = ?', {vehiclePlate})
+                        'SELECT maxweight from player_vehicles where plate = ?', { vehiclePlate })
 
                     local step = (vehicleMeta.maxCarryCapacity - vehicleMeta.minCarryCapacity) / vehicleMeta.upgrades
                     local total = 0
@@ -60,7 +60,7 @@ function calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
                         end
                     end
                     canUpgrade = (currentCarryWeight + (total * step) <= vehicleMeta.maxCarryCapacity) and
-                                     (currentCarryWeight + (total * step) ~= currentCarryWeight)
+                        (currentCarryWeight + (total * step) ~= currentCarryWeight)
                     if canUpgrade == true then
                         local paid = removeMoney(src, 'cash', vehicleMeta.stepPrice * total, 'trunk')
                         if paid then
@@ -79,7 +79,7 @@ end
 function createServerResponse(Result, class)
     -- create server response when client fetch data
     local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?',
-        {Result[1]["plate"]})
+        { Result[1]["plate"] })
     local characterINFO = json.decode(Result[1]['charinfo'])
     local sv_response = {}
     Upgrades = {}
@@ -99,7 +99,7 @@ function createServerResponse(Result, class)
         gender = characterINFO["gender"]
     }
 
-    -- calculate upgrade steps 
+    -- calculate upgrade steps
     for Type, Vehicle in pairs(Config.Vehicles) do
         if Type == class then
             for name, vehicleMeta in pairs(Vehicle) do
@@ -117,7 +117,7 @@ function createServerResponse(Result, class)
     if sv_response['upgrades']["init"] == true then
         Wait(500)
         local currentCarryWeight = oxmysql:scalarSync('SELECT maxweight from player_vehicles where plate = ?',
-            {sv_response['vehicleInfo']['plate']})
+            { sv_response['vehicleInfo']['plate'] })
         sv_response['vehicleInfo']['maxweight'] = currentCarryWeight
         sv_response['upgrades']["init"] = nil
     end
@@ -168,11 +168,11 @@ function updateVehicleDatabaseValues(maxweight, weightUpgradesChanges, upgradeRe
     local weightUpgradesChanges2 = "{" .. table.concat(weightUpgradesChanges, ",") .. "}"
 
     oxmysql:update('UPDATE `player_vehicles` SET maxweight = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
-        {maxweight, model, hash, plate}, function(result)
-        end)
+        { maxweight, model, hash, plate }, function(result)
+    end)
     oxmysql:update('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
-        {weightUpgradesChanges2, model, hash, plate}, function(result)
-        end)
+        { weightUpgradesChanges2, model, hash, plate }, function(result)
+    end)
 end
 
 function removeMoney(src, type, amount, desc)
