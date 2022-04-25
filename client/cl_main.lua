@@ -45,7 +45,7 @@ end)
 
 RegisterNetEvent('qb-expandableVehicleTrunk:Client:Sv_OpenUI')
 AddEventHandler('qb-expandableVehicleTrunk:Client:Sv_OpenUI', function(serverRes)
-    -- when player used tablet server will trigger this event 
+    -- when player used tablet server will trigger this event
     SetNuiFocus(true, true)
     ToggleTablet(not tablet)
     SendNUIMessage({
@@ -153,4 +153,3 @@ RegisterNetEvent('qb-expandableVehicleTrunk:Client:mechDuty')
 AddEventHandler('qb-expandableVehicleTrunk:Client:mechDuty', function()
     TriggerServerEvent("QBCore:ToggleDuty")
 end)
-
