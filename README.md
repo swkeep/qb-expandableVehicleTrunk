@@ -99,10 +99,11 @@ secondInv.label = "Trunk-"..id
 
 # Previews
 
-![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/1.jpg)
-![tabletInfo](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/2.jpg)
-![TabletUpgrade](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/3.jpg)
-![tabletC](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/4.jpg)
-![upgradeAnimation](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/5.jpg)
-![currentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/6.jpg)
-![UpgradeCurrentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/7.jpg)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/noVehicle.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/Vehicle.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/plate.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/upgradeList.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/Payment.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/animation.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/before.png)
+![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/afterUpgrade.png)
