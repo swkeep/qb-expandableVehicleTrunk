@@ -1,65 +1,33 @@
-# qb-expandableVehicleTrunk
+# Qb-expandableVehicleTrunk
+- Custom server-side vehicle inventory weight
 
-Custom server-side vehicle inventory weight
+# Desc
+** IMPORTANT: The project is under development and not fully functional.
+** IMPORTANT: The config file doesn't have vehicles and their classes.
+# Working on
+- add lock screen (if needed)
+- mini-game
+# Installation
 
-# desc
-
-\*\*IMPORTANT: Project is under development and not fully functional so bugs should be expected.
-
-\*IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
-
-# Commands
-
-- admin only commands:
-  -- /testOpen open Ui without tablet in hand
-  -- /mechDuty toggle duty
-  -- /addTablet and one tablet to player inventory
-
-# working on
-
-- Vehicle upgrade history (multiuser)
-- Payment history (multiuser)
-- move notifications to tablet
-- add locksceen (if needed)
-- mini game
-- tax
-- remove upgrades and recive refund
-- add vehicles to config file
-
-# Config
-
-```lua
-    [7] = { -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
-        ["sultanrsv8"] = {
-            minCarryCapacity = 10000,
-            maxCarryCapacity = 100000,
-            upgrades = 4,
-            stepPrice = 1000
-        }
-    },
-```
-
-\*\* [index] index is vehicle class you need to add them and set capacity manually
-
-# instalation
-
-- import expandableVehicleTrunk.sql
-- find "if CurrentVehicle then -- Trunk" in qb-inventory/client/main.lua
-- then add code below aftter first line ("local vehicleClass = GetVehicleClass(curVeh)")
-
+## Step 1
+- import expandableVehicleTrunk.sql into your SQL
+## Step 2
+- inside "qb-inventory/client/main.lua".
+- try to find this code "if CurrentVehicle then -- Trunk".
+- and then you should be abale to see this line >> "local vehicleClass = GetVehicleClass(curVeh)"
+- then add code below
 ```lua
 local plate = QBCore.Functions.GetPlate(curVeh)
 ```
-
-- now find code below and edit it as
-
+## Step 3
+- now try to find this code
 ```lua
 local other = {
     maxweight = maxweight,
     slots = slots,
 }
 ```
-
+- and then add "plate = plate" to table
 ```lua
 local other = {
     maxweight = maxweight,
@@ -67,8 +35,9 @@ local other = {
     plate = plate
 }
 ```
-
-- open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
+## Step 4
+- inside "qb-inventory/server/main.lua".
+- try to find this functions >> "inventory:server:OpenInventory".
 
 ```lua
 if Trunks[id].isOpen then
@@ -85,17 +54,14 @@ end
 
 secondInv.name = "trunk-"..id
 secondInv.label = "Trunk-"..id
-```
-
-- replace ( ADD CODE HERE ) with code below
-
-```lua
+replace ( ADD CODE HERE ) with code below
     local result = exports.oxmysql:scalarSync('SELECT `actualCarryCapacity` FROM player_vehicles WHERE plate = ?',
         {other.plate})
     if result then
         other.maxweight = json.decode(result)
     end
 ```
+
 
 # Previews
 
