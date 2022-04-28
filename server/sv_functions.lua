@@ -1,181 +1,300 @@
 local CoreName = exports['qb-core']:GetCoreObject()
 local oxmysql = exports.oxmysql
+local defualtMetaData = Config.Vehicles
+
+
+-- vehicleData = {
+--     ownerName = 'sadsad',
+--     ownerID = 2,
+--     phone = 3124151,
+--     gender = 'Male',
+--     model = 'appInitData.vehicleData.model',
+--     plate = 'sad464e',
+-- },
+-- vehicleUpgradeData = {
+--     upgradesAvailableForThisVehicle = {
+--          { lable = "20 kg", size = 20, price = 200, upgraded = false },
+--          { lable = "30 kg", size = 30, price = 200, upgraded = false },
+--          { lable = "40 kg", size = 40, price = 200, upgraded = false },
+--          { lable = "50 kg", size = 50, price = 200, upgraded = false },
+--          { lable = "60 kg", size = 60, price = 200, upgraded = false },
+--     },
+--     currentSize = 20,
+--     maxUpgradeSize = 1240,
+-- }
 
 -- ============================
---      Functions
+--      Upgrade Pocess
 -- ============================
-function upgradePocess(src, upgradeReqData)
-    local plate = upgradeReqData["plate"]
+function upgradePocess(source, vehicleData, request)
+    local plate = vehicleData.plate
     local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', { plate })
-
+    local res
     if weightUpgrades ~= nil then
-        if saveCarWeight(src, upgradeReqData, weightUpgrades) then
-            TriggerClientEvent('QBCore:Notify', src, 'Upgrade was successful', 'success', 3500)
-            TriggerClientEvent('qb-expandableVehicleTrunk:Client:CloseUI', src)
+        res = saveCarWeight(source, weightUpgrades, request, vehicleData)
+        if res == true then
+            TriggerClientEvent('QBCore:Notify', source, 'Upgrade was successful', 'success', 3500)
         else
-            TriggerClientEvent('QBCore:Notify', src, 'unable to upgrade!', 'error', 3500)
+            TriggerClientEvent('QBCore:Notify', source, 'Unable to upgrade', 'error', 3500)
         end
     else
-        -- if for some reason it's still not exist in out database we init data here and then process to upgrade it
-        TriggerClientEvent('QBCore:Notify', src, 'Vehicle not found in database!', 'error', 2500)
+        TriggerClientEvent('QBCore:Notify', source, 'You can not upgrade this vehicle!', 'error', 2500)
     end
+    return res
 end
 
-function saveCarWeight(src, upgradeReqData, weightUpgrades)
+function saveCarWeight(source, weightUpgrades, request, vehicleData)
     -- save car Weight
-    local weightUpgradesChanges = {}
-    local upgrades = upgradeReqData["upgrade"]
-    local canUpgrade, maxweight = calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
-
-    if maxweight ~= nil and canUpgrade then
-        for i = 1, #upgrades, 1 do
-            table.insert(weightUpgradesChanges, string.format('"%s":%s', i, upgrades[i]))
-        end
-        updateVehicleDatabaseValues(maxweight, weightUpgradesChanges, upgradeReqData)
-        return true
+    local new_weightUpgrades, newWeight, totalPrice = makeWeightUpgradesString(source, weightUpgrades, request, vehicleData)
+    local tmp                                       = {}
+    for key, value in pairs(new_weightUpgrades) do
+        table.insert(tmp, string.format('%s:%s', key, value))
     end
-    return false
+    tmp = "{" .. table.concat(tmp, ",") .. "}"
+
+    updateVehicleInfromation({
+        vehicleInfo = vehicleData,
+        weightUpgrades = tmp
+    })
+
+    updateVehicleInfromation({
+        vehicleInfo = vehicleData,
+        actualCarryCapacity = newWeight
+    })
+    if totalPrice == 0 then
+        return false
+    end
+    RemoveMoney(source, 'bank', totalPrice, 'Trunk upgrade')
+    return true
 end
 
-function calculateUpgradeAmount(src, upgradeReqData, weightUpgrades)
-    local vehicleClass = upgradeReqData["class"]
-    local vehiclePlate = upgradeReqData["plate"]
-    local vehicleModel = upgradeReqData['model']
-    local weightUpgradesTable = json.decode(weightUpgrades)
-    local sortedUpgrades = sortTable(upgradeReqData["upgrade"])
-    local canUpgrade = false
-
-    for Type, Vehicle in pairs(Config.Vehicles) do
-        if Type == vehicleClass then
-            for model, vehicleMeta in pairs(Vehicle) do
-                if model == vehicleModel then
-                    local currentCarryWeight = oxmysql:scalarSync(
-                        'SELECT maxweight from player_vehicles where plate = ?', { vehiclePlate })
-
-                    local step = (vehicleMeta.maxCarryCapacity - vehicleMeta.minCarryCapacity) / vehicleMeta.upgrades
-                    local total = 0
-                    for key, value in pairs(sortedUpgrades) do
-                        if value == true and weightUpgradesTable[tostring(key)] ~= value then
-                            total = total + 1
-                        end
-                    end
-                    canUpgrade = (currentCarryWeight + (total * step) <= vehicleMeta.maxCarryCapacity) and
-                        (currentCarryWeight + (total * step) ~= currentCarryWeight)
-                    if canUpgrade == true then
-                        local paid = removeMoney(src, 'cash', vehicleMeta.stepPrice * total, 'trunk')
-                        if paid then
-                            canUpgrade = true
-                        else
-                            canUpgrade = false
-                        end
-                    end
-                    return canUpgrade, (currentCarryWeight + (total * step))
+function makeWeightUpgradesString(source, weightUpgrades, request, vehicleData)
+    local tmp = {}
+    local vehiclePlate = vehicleData.plate
+    local vehicleModel = vehicleData.model
+    local current_weightUpgradesTable = json.decode(weightUpgrades)
+    local current_currentCarryWeight = oxmysql:scalarSync('SELECT actualCarryCapacity from player_vehicles where plate = ?', { vehiclePlate })
+    local new_weightUpgradesTable = {}
+    local new_carryWeightValue = current_currentCarryWeight
+    local totalPrice = 0
+    for class, Vehicle in pairs(Config.Vehicles) do
+        for model, vehicleMeta in pairs(Vehicle) do
+            if model == vehicleModel then
+                -- we found model
+                -- make string for upgrades
+                for key, value in pairs(request.Upgrades) do
+                    -- just read from server config file rather than what we got from client! even tho thay samething
+                    local upgrade, index = findByLable(value.lable, vehicleMeta.upgradeList)
+                    new_carryWeightValue = new_carryWeightValue + upgrade.size
+                    totalPrice = totalPrice + upgrade.price
+                    current_weightUpgradesTable[index] = true
                 end
+
+                -- make string downgrades
+                for key, value in pairs(request.Downgrades) do
+                    local upgrade, index = findByLable(value.lable, vehicleMeta.upgradeList)
+                    new_carryWeightValue = new_carryWeightValue - upgrade.size
+                    totalPrice = totalPrice + (upgrade.price * Config.commissionPercentage)
+                    current_weightUpgradesTable[index] = false
+                end
+                goto finish
             end
         end
     end
+    -- we didn't found model use defualt values
+    for key, value in pairs(request.Upgrades) do
+        -- just read from server config file rather than what we got from client! even tho thay samething
+        local upgrade, index = findByLable(value.lable, defualtMetaData.Defualt.upgradeList)
+        new_carryWeightValue = new_carryWeightValue + upgrade.size
+        totalPrice = totalPrice + upgrade.price
+        current_weightUpgradesTable[index] = true
+    end
+
+    -- make string downgrades
+    for key, value in pairs(request.Downgrades) do
+        local upgrade, index = findByLable(value.lable, defualtMetaData.Defualt.upgradeList)
+        new_carryWeightValue = new_carryWeightValue - upgrade.size
+        totalPrice = totalPrice + (upgrade.price * Config.commissionPercentage)
+        current_weightUpgradesTable[index] = false
+    end
+
+    ::finish::
+    new_weightUpgradesTable = current_weightUpgradesTable
+    return new_weightUpgradesTable, math.floor(new_carryWeightValue), math.floor(totalPrice)
 end
 
-function createServerResponse(Result, class)
-    -- create server response when client fetch data
-    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?',
-        { Result[1]["plate"] })
-    local characterINFO = json.decode(Result[1]['charinfo'])
-    local sv_response = {}
-    Upgrades = {}
+function findByLable(lable, tbl)
+    for key, value in pairs(tbl) do
+        if value.lable == lable then
+            return value, key
+        end
+    end
+end
 
-    sv_response['vehicleInfo'] = {
-        vehicle = Result[1]["vehicle"],
-        plate = Result[1]["plate"],
-        maxweight = Result[1]["maxweight"],
-        hash = Result[1]["hash"],
-        class = class
-    }
-    sv_response['characterInfo'] = {
-        firstname = characterINFO["firstname"],
-        lastname = characterINFO["lastname"],
-        cid = characterINFO["cid"],
-        phone = characterINFO["phone"],
-        gender = characterINFO["gender"]
+-- ============================
+--        Read Data
+--        #region
+-- ============================
+
+function PrepareServerResponse(Data, vehicleInfoFromDatabase)
+    local upgrades = {}
+    local playerInfo = json.decode(vehicleInfoFromDatabase['charinfo'])
+
+    local Response = {
+        vehicleData = {
+            ownerID = playerInfo.cid,
+            personalInfo = {
+                firstname = playerInfo.firstname,
+                lastname = playerInfo.lastname,
+                phone = playerInfo.phone,
+                gender = playerInfo.gender,
+                birthdate = playerInfo.birthdate
+            },
+            model = vehicleInfoFromDatabase["vehicle"],
+            plate = vehicleInfoFromDatabase["plate"],
+            hash = vehicleInfoFromDatabase["hash"]
+        },
+        vehicleUpgradeData = {
+            upgradesAvailableForThisVehicle = {},
+            currentSize = 0,
+            maxUpgradeSize = 0,
+        }
     }
 
     -- calculate upgrade steps
-    for Type, Vehicle in pairs(Config.Vehicles) do
-        if Type == class then
-            for name, vehicleMeta in pairs(Vehicle) do
-                if name == Result[1]["vehicle"] then
-                    Upgrades = createUpgrades(vehicleMeta, weightUpgrades, Result[1])
-                    sv_response['vehicleInfo']['maxCarryCapacity'] = vehicleMeta.maxCarryCapacity
+    for class, Vehicles in pairs(defualtMetaData) do
+        -- find right class
+        if class == Data.class then
+            -- find right vehicle metaData
+            for name, vehicleMeta in pairs(Vehicles) do
+                if name == vehicleInfoFromDatabase["vehicle"] then
+                    upgrades = upgradesInfromation(Data, vehicleMeta, vehicleInfoFromDatabase)
+                    Response.vehicleUpgradeData.maxUpgradeSize = vehicleMeta.maxCarryCapacity
+                    -- vehicle exist inside config file
+                    goto here
                 end
             end
+            -- we didn't found model
+            upgrades = upgradeWithDefaultValue(Data, vehicleInfoFromDatabase)
         end
     end
-    sv_response['upgrades'] = Upgrades
-
-    -- need better implementation
-    -- desc : when we init vehicle database client need to get new carryWeight not old one
-    if sv_response['upgrades']["init"] == true then
-        Wait(500)
-        local currentCarryWeight = oxmysql:scalarSync('SELECT maxweight from player_vehicles where plate = ?',
-            { sv_response['vehicleInfo']['plate'] })
-        sv_response['vehicleInfo']['maxweight'] = currentCarryWeight
-        sv_response['upgrades']["init"] = nil
-    end
-
-    return sv_response
+    -- we didn't found class
+    upgrades = upgradeWithDefaultValue(Data, vehicleInfoFromDatabase)
+    ::here::
+    Response.vehicleUpgradeData.upgradesAvailableForThisVehicle = upgrades.upgradesAvailableForThisVehicle
+    Response.vehicleUpgradeData.currentSize = upgrades.actualCarryCapacity
+    return Response
 end
 
-function createUpgrades(vehicleMeta, weightUpgrades, vehicle)
-    local temp = {}
-    local weightUpgrades = json.decode(weightUpgrades)
-    local step = (vehicleMeta.maxCarryCapacity - vehicleMeta.minCarryCapacity) / vehicleMeta.upgrades
+function upgradeWithDefaultValue(Data, vehicleInfoFromDatabase)
+    return upgradesInfromation(Data, defualtMetaData.Defualt, vehicleInfoFromDatabase)
+end
 
+function upgradesInfromation(clientInfo, vehicleMeta, vehicleInfoFromDatabase)
+    local info = {}
+    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', { clientInfo.plate })
     if weightUpgrades ~= nil then
-        for k, value in pairs(weightUpgrades) do
-            temp[k] = value
-        end
-        temp["step"] = step
-        temp["stepPrice"] = vehicleMeta.stepPrice
-        return temp
+        revalidate_weightUpgrades(weightUpgrades, vehicleMeta, vehicleInfoFromDatabase)
+        info = getAvailableUpgrades(weightUpgrades, vehicleMeta, vehicleInfoFromDatabase)
     else
-        return initWeightUpgradesData(vehicleMeta, vehicle, step)
+        info = {
+            upgradesAvailableForThisVehicle = initializeAvailableUpgrades(vehicleMeta, vehicleInfoFromDatabase),
+            actualCarryCapacity = initializeActualCarryCapacity(vehicleMeta, vehicleInfoFromDatabase),
+        }
     end
+    return info
 end
 
-function initWeightUpgradesData(vehicleMeta, vehicle, step)
+function revalidate_weightUpgrades(weightUpgradesString, vehicleMeta, vehicleInfoFromDatabase)
+    local upgrades = {}
+    local weightUpgrades = json.decode(weightUpgradesString)
+    local list = vehicleMeta.upgradeList
+
+    if #weightUpgrades == #list then
+        return
+    end
+
+    for key, value in pairs(list) do
+        if weightUpgrades[key] ~= nil and weightUpgrades[key] == true then
+            table.insert(upgrades, string.format('%s:%s', key, true))
+        else
+            table.insert(upgrades, string.format('%s:%s', key, false))
+        end
+    end
+    upgrades = "{" .. table.concat(upgrades, ",") .. "}"
+    updateVehicleInfromation({
+        vehicleInfo = vehicleInfoFromDatabase,
+        weightUpgrades = upgrades
+    })
+end
+
+function initializeActualCarryCapacity(vehicleMeta, vehicleInfoFromDatabase)
+    updateVehicleInfromation({
+        vehicleInfo = vehicleInfoFromDatabase,
+        actualCarryCapacity = vehicleMeta.minCarryCapacity
+    })
+    return vehicleMeta.minCarryCapacity
+end
+
+function initializeAvailableUpgrades(vehicleMeta, vehicleInfoFromDatabase)
     -- init vehicle
-    local initWeightUpgrades = {}
-    for i = 1, vehicleMeta.upgrades, 1 do
-        table.insert(initWeightUpgrades, string.format('"%s":%s', i, false))
+    local upgrades = {}
+    for key, value in pairs(vehicleMeta.upgradeList) do
+        --table.insert(upgrades, string.format('"%s":%s', key, false))
+        table.insert(upgrades, string.format('%s:%s', key, false))
     end
 
-    updateVehicleDatabaseValues(vehicleMeta.minCarryCapacity, initWeightUpgrades, vehicle)
+    -- convert table to string to save inside database
+    -- {"1":false,"2":false,"3":false}
+    upgrades = "{" .. table.concat(upgrades, ",") .. "}"
 
-    -- step , stepPrice is for client to show to players
-    table.insert(initWeightUpgrades, string.format('"%s":%s', 'step', step))
-    table.insert(initWeightUpgrades, string.format('"%s":%s', 'stepPrice', vehicleMeta.stepPrice))
-    table.insert(initWeightUpgrades, string.format('"%s":%s', 'init', true))
+    updateVehicleInfromation({
+        vehicleInfo = vehicleInfoFromDatabase,
+        weightUpgrades = upgrades
+    })
 
-    initWeightUpgrades = "{" .. table.concat(initWeightUpgrades, ",") .. "}"
-    return json.decode(initWeightUpgrades)
+    for key, value in pairs(vehicleMeta.upgradeList) do
+        value.upgraded = false
+    end
+
+    return vehicleMeta.upgradeList
 end
 
-function updateVehicleDatabaseValues(maxweight, weightUpgradesChanges, upgradeReqData)
-    local plate = upgradeReqData["plate"]
-    local model = upgradeReqData["vehicle"] or upgradeReqData["model"]
+function getAvailableUpgrades(weightUpgradesString, vehicleMeta, vehicleInfoFromDatabase)
+    local tmp = {}
+    local weightUpgrades = json.decode(weightUpgradesString)
 
-    local hash = upgradeReqData["hash"]
-    local weightUpgradesChanges2 = "{" .. table.concat(weightUpgradesChanges, ",") .. "}"
+    for key, value in pairs(vehicleMeta.upgradeList) do
+        value.upgraded = weightUpgrades[key]
+        tmp[key] = value
+    end
 
-    oxmysql:update('UPDATE `player_vehicles` SET maxweight = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
-        { maxweight, model, hash, plate }, function(result)
-    end)
-    oxmysql:update('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
-        { weightUpgradesChanges2, model, hash, plate }, function(result)
-    end)
+    return {
+        upgradesAvailableForThisVehicle = vehicleMeta.upgradeList,
+        actualCarryCapacity = vehicleInfoFromDatabase.actualCarryCapacity,
+    }
 end
 
-function removeMoney(src, type, amount, desc)
+function updateVehicleInfromation(options)
+    local model = options.vehicleInfo.vehicle or options.vehicleInfo.model
+    local hash  = options.vehicleInfo.hash
+    local plate = options.vehicleInfo.plate
+
+    if options.actualCarryCapacity ~= nil then
+        oxmysql:update('UPDATE `player_vehicles` SET actualCarryCapacity = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
+            { options.actualCarryCapacity, model, hash, plate }, function(result)
+        end)
+    end
+    if options.weightUpgrades ~= nil then
+        oxmysql:update('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
+            { options.weightUpgrades, model, hash, plate }, function(result)
+        end)
+    end
+end
+
+--#endregion
+
+function RemoveMoney(src, type, amount, desc)
     local plyer = CoreName.Functions.GetPlayer(src)
     if plyer.Functions.RemoveMoney(type, amount, "vehicle-upgrade-bail-" .. desc) then
         TriggerClientEvent('QBCore:Notify', src, 'you paid: ' .. amount, 'success', 3500)
@@ -183,14 +302,6 @@ function removeMoney(src, type, amount, desc)
     end
     TriggerClientEvent('QBCore:Notify', src, 'unable to pay!', 'error', 3500)
     return false
-end
-
-function sortTable(table)
-    local temp = {}
-    for k, value in pairs(table) do
-        temp[k] = value
-    end
-    return temp
 end
 
 function tprint(tbl, indent)

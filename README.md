@@ -1,28 +1,33 @@
 # qb-expandableVehicleTrunk
+
 Custom server-side vehicle inventory weight
 
 # desc
-**IMPORTANT: Project is under development and not fully functional so bugs should be expected.
 
-*IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
+\*\*IMPORTANT: Project is under development and not fully functional so bugs should be expected.
+
+\*IMPORTANT: Config file doesn't contain vehicles and their classes. (it should be added manually)
 
 # Commands
+
 - admin only commands:
-   -- /testOpen open Ui without tablet in hand
-   -- /mechDuty toggle duty
-   -- /addTablet and one tablet to player inventory
-   
-# working on 
-* Vehicle upgrade history (multiuser)
-* Payment history (multiuser)
-* move notifications to tablet
-* add locksceen (if needed)
-* mini game
-* tax
-* remove upgrades and recive refund
-* add vehicles to config file
+  -- /testOpen open Ui without tablet in hand
+  -- /mechDuty toggle duty
+  -- /addTablet and one tablet to player inventory
+
+# working on
+
+- Vehicle upgrade history (multiuser)
+- Payment history (multiuser)
+- move notifications to tablet
+- add locksceen (if needed)
+- mini game
+- tax
+- remove upgrades and recive refund
+- add vehicles to config file
 
 # Config
+
 ```lua
     [7] = { -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
         ["sultanrsv8"] = {
@@ -33,18 +38,20 @@ Custom server-side vehicle inventory weight
         }
     },
 ```
-** [index] index is vehicle class you need to add them and set capacity manually
+
+\*\* [index] index is vehicle class you need to add them and set capacity manually
 
 # instalation
-* import expandableVehicleTrunk.sql
-* find "if CurrentVehicle ~= nil then -- Trunk" in qb-inventory/client/main.lua
-* then add code below aftter first line ("local vehicleClass = GetVehicleClass(curVeh)")
+
+- import expandableVehicleTrunk.sql
+- find "if CurrentVehicle then -- Trunk" in qb-inventory/client/main.lua
+- then add code below aftter first line ("local vehicleClass = GetVehicleClass(curVeh)")
 
 ```lua
 local plate = QBCore.Functions.GetPlate(curVeh)
 ```
 
-* now find code below and edit it as
+- now find code below and edit it as
 
 ```lua
 local other = {
@@ -61,7 +68,7 @@ local other = {
 }
 ```
 
-* open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
+- open "inventory:server:OpenInventory" in qb-inventory/server/main.lua and find code below
 
 ```lua
 if Trunks[id].isOpen then
@@ -80,19 +87,18 @@ secondInv.name = "trunk-"..id
 secondInv.label = "Trunk-"..id
 ```
 
-* replace ( ADD CODE HERE ) with code below
+- replace ( ADD CODE HERE ) with code below
 
 ```lua
-    Result = exports.oxmysql:scalarSync('SELECT `maxweight` FROM player_vehicles WHERE plate = ?',
+    local result = exports.oxmysql:scalarSync('SELECT `actualCarryCapacity` FROM player_vehicles WHERE plate = ?',
         {other.plate})
-    if Result then
-        local maxweight_Server = json.decode(Result)
-        other.maxweight = maxweight_Server
+    if result then
+        other.maxweight = json.decode(result)
     end
 ```
 
-
 # Previews
+
 ![tablet](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/1.jpg)
 ![tabletInfo](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/2.jpg)
 ![TabletUpgrade](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/3.jpg)
@@ -100,4 +106,3 @@ secondInv.label = "Trunk-"..id
 ![upgradeAnimation](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/5.jpg)
 ![currentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/6.jpg)
 ![UpgradeCurrentmaxweight](https://raw.githubusercontent.com/swkeep/qb-expandableVehicleTrunk/main/.github/images/7.jpg)
-
