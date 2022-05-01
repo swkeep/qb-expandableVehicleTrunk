@@ -2,21 +2,17 @@
 
 - Custom server-side vehicle inventory weight
 
-# Desc
-
-** IMPORTANT: The project is under development and not fully functional.
-** IMPORTANT: The config file doesn't have vehicles and their classes.
-
 # Working on
 
-- add lock screen (if needed)
+- add lock screen
 - mini-game
 
 # Installation
 
 ## Step 1
 
-- import expandableVehicleTrunk.sql into your SQL
+- install [swkeep-tablet](https://github.com/swkeep/swkeep-tablet)
+- and then import expandableVehicleTrunk.sql into your SQL
 
 ## Step 2
 
