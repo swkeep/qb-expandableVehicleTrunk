@@ -9,8 +9,7 @@ Config.blowtorchTime = math.random(5000, 6000);
 Config.commissionPercentage = 0.2 -- 20%
 
 Config.Vehicles = {
-    [7] = { -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
-    },
+    -- table keys are vehicles classes https://docs.fivem.net/natives/?_0x29439776AAA00A62
     [9] = {
         ["dubsta3"] = {
             minCarryCapacity = 30000,
