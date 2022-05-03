@@ -10,12 +10,12 @@ Config.commissionPercentage = 0.2 -- 20%
 
 local presets = {
     ['tiny'] = {
-        [1] = { lable = "10 kg", size = 20 * 1000, price = 2000 },
-        [2] = { lable = "15 kg", size = 50 * 1000, price = 4000 },
+        [1] = { lable = "10 kg", size = 10 * 1000, price = 2000 },
+        [2] = { lable = "15 kg", size = 15 * 1000, price = 4000 },
     },
     ['small'] = {
         [1] = { lable = "20 kg", size = 20 * 1000, price = 5000 },
-        [2] = { lable = "40 kg", size = 50 * 1000, price = 10000 },
+        [2] = { lable = "40 kg", size = 40 * 1000, price = 10000 },
     },
     ['medium'] = {
         [1] = { lable = "50 kg", size = 50 * 1000, price = 1100 },

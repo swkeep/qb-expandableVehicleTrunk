@@ -65,7 +65,7 @@ local function makeWeightUpgradesString(source, weightUpgrades, request, data)
                 end
             end
 
-            if totalPrice == 0 then
+            if totalPrice == 0 and next(DefaultMetaData[class]) ~= nil then
                 -- we didn't found model but we have defalut value for it's class
                 for key, value in pairs(request.Upgrades) do
                     -- just read from server config file rather than what we got from client! even tho thay samething
@@ -286,6 +286,7 @@ function PrepareServerResponse(Data, vehicleInfoFromDatabase)
             -- find right vehicle metaData
             for name, vehicleMeta in pairs(Vehicles) do
                 if name == vehicleInfoFromDatabase["vehicle"] then
+                    print('1')
                     upgrades = upgradesInfromation(Data, vehicleMeta, vehicleInfoFromDatabase)
                     Response.vehicleUpgradeData.maxUpgradeSize = vehicleMeta.maxCarryCapacity
                     break
