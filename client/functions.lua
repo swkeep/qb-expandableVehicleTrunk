@@ -1,22 +1,41 @@
-local DEBUG = Config.DEBUG
 local CoreName = exports['qb-core']:GetCoreObject()
 
-function tprint(tbl, indent)
-    if not indent then
-        indent = 0
+function PrepareVehicleData()
+    local DATA = {}
+    local ped = PlayerPedId()
+    local pos = GetEntityCoords(ped)
+    local veh
+    if IsPedInAnyVehicle(ped) then
+        veh = GetVehiclePedIsIn(ped)
+    else
+        veh = CoreName.Functions.GetClosestVehicle(pos)
     end
-    for k, v in pairs(tbl) do
-        formatting = string.rep("  ", indent) .. k .. ": "
-        if type(v) == "table" then
-            print(formatting)
-            tprint(v, indent + 1)
-        elseif type(v) == 'boolean' then
-            print(formatting .. tostring(v))
-        else
-            print(formatting .. v)
-        end
+    DATA.plate = CoreName.Functions.GetPlate(veh)
+    DATA.class = GetVehicleClass(veh)
+    DATA.vehpos = GetEntityCoords(veh)
+    DATA.namelbl = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(veh)))
+    DATA.isVehicleStopped = IsVehicleStopped(veh)
+    DATA.isEngineRunning = GetIsVehicleEngineRunning(veh)
+    DATA.vehicleEstimatedMaxSpeed = GetVehicleEstimatedMaxSpeed(veh)
+    if veh ~= nil and #(pos - DATA.vehpos) < 2.5 and IsPauseMenuActive() == false then
+        -- data is ready to for server
+    elseif IsPauseMenuActive() == 1 then
+        DATA.error = {}
+        DATA.error = {
+            error = 'open_menu',
+        }
+        return DATA.error
+    else
+        DATA.error = {}
+        DATA.error = {
+            error = 'not_near_vehicle',
+        }
+        return DATA.error
     end
+    return DATA
 end
+
+exports("PrepareVehicleData", PrepareVehicleData)
 
 function makeEntityFaceEntity(entity1, entity2)
     local p1 = GetEntityCoords(entity1, true)
@@ -31,23 +50,24 @@ function makeEntityFaceEntity(entity1, entity2)
 end
 
 function ToggleBlowtorch(toggle)
+    local weaponHash = GetHashKey("WEAPON_UNARMED")
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
     local veh = CoreName.Functions.GetClosestVehicle(pos)
     if IsPedInAnyVehicle(ped) then
         veh = GetVehiclePedIsIn(ped)
         while IsPedInAnyVehicle(ped) do
-            TaskLeaveVehicle(ped --[[ Ped ]] , veh --[[ Vehicle ]] , 1 --[[ integer ]] )
+            TaskLeaveVehicle(ped, veh, 1)
             Wait(750)
         end
     end
     Wait(500)
     makeEntityFaceEntity(ped, veh)
     if toggle then
-        SetCurrentPedWeapon(ped, "weapon_unarmed", true)
+        SetCurrentPedWeapon(ped, weaponHash, true)
         TaskStartScenarioInPlace(ped, "WORLD_HUMAN_WELDING", 0, true)
     elseif not toggle then
-        SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
+        SetCurrentPedWeapon(ped, weaponHash, true)
         ClearPedTasks(ped)
     end
 end

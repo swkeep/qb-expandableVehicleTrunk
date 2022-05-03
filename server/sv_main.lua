@@ -1,42 +1,11 @@
-local CoreName = exports['qb-core']:GetCoreObject()
+local QBcore = exports['qb-core']:GetCoreObject()
 local oxmysql = exports.oxmysql
-
-CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:reciveUpgradeReq', function(source, cb, data)
-    local src = source
-    -- client wants to upgrade ==> start animation
-    if TriggerClientEvent('qb-expandableVehicleTrunk:Client:startUpgrading', src, data) then
-        cb(true)
-    else
-        cb(false)
-    end
-end)
-
-RegisterNetEvent('qb-expandableVehicleTrunk:server:proccesUpgradeReq', function(upgradeReqData)
-    -- process upgrade request sent by client after animation is done
-    local src = source
-    upgradePocess(src, upgradeReqData)
-end)
-
-CoreName.Functions.CreateUseableItem("capacitytablet", function(source, item)
-    local Player = CoreName.Functions.GetPlayer(source)
-    local src = source
-    if (Player.PlayerData.job.name == "mechanic" and Player.PlayerData.job.onduty) then
-        if Player.Functions.GetItemByName(item.name) then
-            TriggerClientEvent('qb-expandableVehicleTrunk:Client:isPlayingAnimation', src)
-        end
-    elseif Player.PlayerData.job.onduty == false then
-        TriggerClientEvent('QBCore:Notify', source, 'You must be onDuty!', 'error', 2500)
-    else
-        TriggerClientEvent('QBCore:Notify', source, 'You must be a mechanic to use this tablet!', 'error', 2500)
-    end
-end)
-
 -- ============================
 --      New Tablet Events
 -- ============================
 
 
-CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:getDataFromNearbyVehicle', function(source, cb, parameters)
+QBcore.Functions.CreateCallback('qb-expandableVehicleTrunk:server:getDataFromNearbyVehicle', function(source, cb, parameters)
     local src = source
     local vehicleInfoFromDatabase
     if parameters["isVehicleStopped"] == 1 and parameters["isEngineRunning"] == false then
@@ -60,8 +29,7 @@ CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:getDataFromN
     end
 end)
 
-
-CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:updateRequestedData', function(source, cb, data)
+QBcore.Functions.CreateCallback('qb-expandableVehicleTrunk:server:updateRequestedData', function(source, cb, data)
     -- seprate Upgrades && Downgrades
     local request = {
         Upgrades = {},
@@ -73,26 +41,24 @@ CoreName.Functions.CreateCallback('qb-expandableVehicleTrunk:server:updateReques
             table.insert(request.Upgrades, value)
         end
     end
-    -- check for downgrades
     for key, value in pairs(data.deselected) do
         if value.serverSideUpgraded == true then
             -- need to downgrade
             table.insert(request.Downgrades, value)
         end
     end
-    --
-    local res = upgradePocess(source, data.vehicleData, request)
+    -- start upgrade process
+    local res = upgradeProcess(source, data.vehicleData, request)
     if res == true then
         TriggerClientEvent('qb-expandableVehicleTrunk:Client:startUpgrading', source)
     end
     cb(res)
 end)
 
-
 -- ============================
 --      Commands
 -- ============================
 
-CoreName.Commands.Add("goOnDuty", "(Admin Only)", {}, false, function(source)
+QBcore.Commands.Add("goOnDuty", "(Admin Only)", {}, false, function(source)
     TriggerClientEvent("qb-expandableVehicleTrunk:Client:goOnDuty", source)
 end, 'admin')
