@@ -286,7 +286,6 @@ function PrepareServerResponse(Data, vehicleInfoFromDatabase)
             -- find right vehicle metaData
             for name, vehicleMeta in pairs(Vehicles) do
                 if name == vehicleInfoFromDatabase["vehicle"] then
-                    print('1')
                     upgrades = upgradesInfromation(Data, vehicleMeta, vehicleInfoFromDatabase)
                     Response.vehicleUpgradeData.maxUpgradeSize = vehicleMeta.maxCarryCapacity
                     break

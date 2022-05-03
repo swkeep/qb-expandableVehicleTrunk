@@ -6,7 +6,7 @@ Config.DEBUG = true -- make sure it's false
 -- ============================
 
 Config.blowtorchTime = math.random(5000, 6000);
-Config.commissionPercentage = 0.2 -- 20%
+Config.commissionPercentage = 0.2 -- 20% -- you need to changed this value inside swkeep-tablet too!
 
 local presets = {
     ['tiny'] = {

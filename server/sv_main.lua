@@ -26,6 +26,9 @@ QBcore.Functions.CreateCallback('qb-expandableVehicleTrunk:server:getDataFromNea
     elseif parameters["isEngineRunning"] == 1 then
         TriggerClientEvent('QBCore:Notify', src, 'Vehicle engine is on trun it off!', 'error', 2500)
         cb(false)
+    elseif parameters["error"] == 'not_near_vehicle' then
+        TriggerClientEvent('QBCore:Notify', src, 'You are not near a vehicle', 'error', 2500)
+        cb(false)
     end
 end)
 
