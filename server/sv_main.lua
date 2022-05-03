@@ -48,7 +48,7 @@ QBcore.Functions.CreateCallback('qb-expandableVehicleTrunk:server:updateRequeste
         end
     end
     -- start upgrade process
-    local res = upgradeProcess(source, data.vehicleData, request)
+    local res = upgradeProcess(source, data, request)
     if res == true then
         TriggerClientEvent('qb-expandableVehicleTrunk:Client:startUpgrading', source)
     end

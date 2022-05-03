@@ -79,6 +79,11 @@ Config.Vehicles = {
     },
     [10] = {
         -- Industrial
+        ['Default'] = {
+            minCarryCapacity = 20000,
+            maxCarryCapacity = 200000,
+            upgradeList = presets.large
+        }
     },
     [11] = {
         -- Utility

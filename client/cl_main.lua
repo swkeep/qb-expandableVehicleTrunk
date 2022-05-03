@@ -1,6 +1,3 @@
--- ============================
---    CLIENT CONFIGS
--- ============================
 local CoreName = exports['qb-core']:GetCoreObject()
 local blowtorchTime = Config.blowtorchTime
 -- ============================
@@ -39,21 +36,6 @@ end)
 --         writeEvent = 'qb-expandableVehicleTrunk:server:updateRequestedData',
 --         exports = {}, -- get around callback not close to what we want
 --     })
--- end)
-
--- AddEventHandler('onResourceStart', function(resourceName)
---     if resourceName == 'qb-expandableVehicleTrunk' then
---         exports['swkeep-tablet']:AddAppToList({
---             name = "expansiontrunk",
---             icon = "carrep.png",
---             lable = "Expansion trunk",
---             to = "expansion",
---             resourceName = 'qb-expandableVehicleTrunk',
---             readEvent = 'qb-expandableVehicleTrunk:server:getDataFromNearbyVehicle',
---             writeEvent = 'qb-expandableVehicleTrunk:server:updateRequestedData',
---             exports = {}, -- get around callback not close to what we want
---         })
---     end
 -- end)
 
 RegisterNetEvent('qb-expandableVehicleTrunk:Client:goOnDuty', function()
