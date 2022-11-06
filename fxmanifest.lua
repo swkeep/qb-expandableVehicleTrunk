@@ -7,4 +7,4 @@ client_scripts { '@PolyZone/client.lua', 'client/functions.lua', 'client/cl_main
 
 shared_script { 'config.lua', 'shared/shared.lua' }
 
-server_script { 'server/sv_main.lua', 'server/sv_functions.lua' }
+server_script { '@oxmysql/lib/MySQL.lua', 'server/sv_main.lua', 'server/sv_functions.lua' }

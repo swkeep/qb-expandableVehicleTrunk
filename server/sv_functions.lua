@@ -1,5 +1,4 @@
 local CoreName = exports['qb-core']:GetCoreObject()
-local oxmysql = exports.oxmysql
 local DefaultMetaData = Config.Vehicles
 
 -- ============================
@@ -11,12 +10,14 @@ local function updateVehicleInfromation(options)
     local plate = options.vehicleInfo.plate
 
     if options.actualCarryCapacity ~= nil then
-        oxmysql:update('UPDATE `player_vehicles` SET actualCarryCapacity = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
+        MySQL.Async.execute('UPDATE `player_vehicles` SET actualCarryCapacity = ? WHERE vehicle = ? AND hash = ? AND plate = ?'
+            ,
             { options.actualCarryCapacity, model, hash, plate }, function(result)
         end)
     end
     if options.weightUpgrades ~= nil then
-        oxmysql:update('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?',
+        MySQL.Async.execute('UPDATE `player_vehicles` SET weightUpgrades = ? WHERE vehicle = ? AND hash = ? AND plate = ?'
+            ,
             { options.weightUpgrades, model, hash, plate }, function(result)
         end)
     end
@@ -35,7 +36,9 @@ local function makeWeightUpgradesString(source, weightUpgrades, request, data)
     local vehicleModel = data.vehicleData.model
     local vehicleClass = data.vehicleData.class
     local current_weightUpgradesTable = json.decode(weightUpgrades)
-    local current_CarryWeight = oxmysql:scalarSync('SELECT actualCarryCapacity from player_vehicles where plate = ?', { vehiclePlate })
+    local current_CarryWeight = MySQL.Sync.fetchScalar('SELECT actualCarryCapacity from player_vehicles where plate = ?'
+        ,
+        { vehiclePlate })
     local new_weightUpgradesTable = {}
     local new_carryWeightValue = current_CarryWeight
     local totalPrice = 0
@@ -145,7 +148,7 @@ end
 
 function upgradeProcess(source, data, request)
     local plate = data.vehicleData.plate
-    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', { plate })
+    local weightUpgrades = MySQL.Sync.fetchScalar('SELECT weightUpgrades from player_vehicles where plate = ?', { plate })
     local res
     if weightUpgrades ~= nil then
         res = saveCarWeight(source, weightUpgrades, request, data)
@@ -235,7 +238,8 @@ end
 
 local function upgradesInfromation(clientInfo, vehicleMeta, vehicleInfoFromDatabase)
     local info = {}
-    local weightUpgrades = oxmysql:scalarSync('SELECT weightUpgrades from player_vehicles where plate = ?', { clientInfo.plate })
+    local weightUpgrades = MySQL.Sync.fetchScalar('SELECT weightUpgrades from player_vehicles where plate = ?',
+        { clientInfo.plate })
     if weightUpgrades ~= nil then
         revalidate_weightUpgrades(weightUpgrades, vehicleMeta, vehicleInfoFromDatabase)
         info = getAvailableUpgrades(weightUpgrades, vehicleMeta, vehicleInfoFromDatabase)
